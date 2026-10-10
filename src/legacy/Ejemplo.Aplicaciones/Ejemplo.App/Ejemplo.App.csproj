@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{E1B2C3D4-5555-5555-5555-000000000001}</ProjectGuid>
+    <OutputType>WinExe</OutputType>
+    <RootNamespace>Ejemplo.App</RootNamespace>
+    <AssemblyName>App</AssemblyName>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Configuration" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Program.cs" />
+    <Compile Include="UserSession.cs" />
+    <Compile Include="NavigationManager.cs" />
+    <Compile Include="FrmLogin.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FrmLogin.Designer.cs">
+      <DependentUpon>FrmLogin.cs</DependentUpon>
+    </Compile>
+    <Compile Include="FrmMain.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FrmMain.Designer.cs">
+      <DependentUpon>FrmMain.cs</DependentUpon>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="App.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\Ejemplo.Comun\Ejemplo.Comun.DTOs\Ejemplo.Comun.DTOs.csproj">
+      <Project>{A1B2C3D4-0001-0001-0001-000000000001}</Project>
+      <Name>Ejemplo.Comun.DTOs</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Ejemplo.Comun\Ejemplo.Comun.Utilidades\Ejemplo.Comun.Utilidades.csproj">
+      <Project>{A1B2C3D4-0001-0001-0001-000000000003}</Project>
+      <Name>Ejemplo.Comun.Utilidades</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Ejemplo.WCFServicios\Ejemplo.WCF.Agentes\Ejemplo.WCF.Agentes.csproj">
+      <Project>{B1B2C3D4-2222-2222-2222-000000000004}</Project>
+      <Name>Ejemplo.WCF.Agentes</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Ejemplo.GUI\Ejemplo.GUI.Comun\Ejemplo.GUI.Comun.csproj">
+      <Project>{D1B2C3D4-4444-4444-4444-000000000001}</Project>
+      <Name>Ejemplo.GUI.Comun</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Ejemplo.GUI\Ejemplo.GUI.Clientes\Ejemplo.GUI.Clientes.csproj">
+      <Project>{D1B2C3D4-4444-4444-4444-000000000002}</Project>
+      <Name>Ejemplo.GUI.Clientes</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Ejemplo.GUI\Ejemplo.GUI.Cuentas\Ejemplo.GUI.Cuentas.csproj">
+      <Project>{D1B2C3D4-4444-4444-4444-000000000003}</Project>
+      <Name>Ejemplo.GUI.Cuentas</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Ejemplo.GUI\Ejemplo.GUI.Creditos\Ejemplo.GUI.Creditos.csproj">
+      <Project>{D1B2C3D4-4444-4444-4444-000000000004}</Project>
+      <Name>Ejemplo.GUI.Creditos</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Ejemplo.GUI\Ejemplo.GUI.Reportes\Ejemplo.GUI.Reportes.csproj">
+      <Project>{D1B2C3D4-4444-4444-4444-000000000005}</Project>
+      <Name>Ejemplo.GUI.Reportes</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>

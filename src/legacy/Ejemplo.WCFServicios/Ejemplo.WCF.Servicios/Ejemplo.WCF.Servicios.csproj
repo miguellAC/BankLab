@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{11111111-2222-3333-4444-555555555552}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Ejemplo.WCF.Servicios</RootNamespace>
+    <AssemblyName>Ejemplo.WCF.Servicios</AssemblyName>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.ServiceModel" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="ClientesServicio.cs" />
+    <Compile Include="CuentasServicio.cs" />
+    <Compile Include="CreditosServicio.cs" />
+    <Compile Include="PagosServicio.cs" />
+    <Compile Include="CarteraServicio.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Ejemplo.WCF.Contratos\Ejemplo.WCF.Contratos.csproj">
+      <Project>{11111111-2222-3333-4444-555555555551}</Project>
+      <Name>Ejemplo.WCF.Contratos</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Ejemplo.Comun\Ejemplo.Comun.DTOs\Ejemplo.Comun.DTOs.csproj">
+      <Project>{00000000-0000-0000-0000-000000000001}</Project>
+      <Name>Ejemplo.Comun.DTOs</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Ejemplo.Comun\Ejemplo.Comun.Utilidades\Ejemplo.Comun.Utilidades.csproj">
+      <Project>{00000000-0000-0000-0000-000000000002}</Project>
+      <Name>Ejemplo.Comun.Utilidades</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Ejemplo.Componentes\Ejemplo.Componentes.BLL\Ejemplo.Componentes.BLL.csproj">
+      <Project>{00000000-0000-0000-0000-000000000004}</Project>
+      <Name>Ejemplo.Componentes.BLL</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>

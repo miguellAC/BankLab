@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<MensajeIntegracion xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="MensajePago.xsd">
+    <Cabecera>
+        <SistemaOrigen>EXT-RECAUDACION</SistemaOrigen>
+        <FechaTransaccion>2026-10-10T15:30:00Z</FechaTransaccion>
+        <IdMensaje>MSG-2026-009911</IdMensaje>
+    </Cabecera>
+    <Cuerpo>
+        <PagoExterno>
+            <IdentificacionCliente>1712345678</IdentificacionCliente>
+            <NumeroCredito>CRD-2024-001</NumeroCredito>
+            <MontoAplicado>350.00</MontoAplicado>
+            <Moneda>USD</Moneda>
+            <Canal>VENTANILLA_CORRESPONSAL</Canal>
+            <ReferenciaComprobante>CMP-998877</ReferenciaComprobante>
+        </PagoExterno>
+    </Cuerpo>
+</MensajeIntegracion>

@@ -1,0 +1,17 @@
+{
+  "Logging": {
+    "LogLevel": {
+      "Default": "Information",
+      "Microsoft.AspNetCore": "Warning"
+    }
+  },
+  "AllowedHosts": "*",
+  "ConnectionStrings": {
+    "BankLabDb": "Server=localhost;Database=BankLabDB;User Id=sa;Password=BankLab2024!;TrustServerCertificate=True;"
+  },
+  "ApiSettings": {
+    "PageSize": 50,
+    "EnableSwagger": true,
+    "ExternalServicesTimeoutMs": 5000
+  }
+}

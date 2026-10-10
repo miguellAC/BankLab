@@ -1,0 +1,27 @@
+@{ ViewBag.Title = "Búsqueda de Clientes"; }
+<h2>Búsqueda de Clientes</h2>
+<form method="get" action="/Clientes/Index">
+    <div class="form-group">
+        <label>Buscar:</label>
+        <input type="text" name="busqueda" class="form-control" value="@ViewBag.Busqueda" />
+    </div>
+    <button type="submit" class="btn btn-primary">Buscar</button>
+</form>
+<table class="table mt-3">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Nombre</th>
+            <th>Acciones</th>
+        </tr>
+    </thead>
+    <tbody>
+        <!-- Datos de prueba -->
+        <tr>
+            <td>1</td>
+            <td>Cliente de Prueba</td>
+            <td><a href="/Clientes/Detalle/1">Detalle</a></td>
+        </tr>
+    </tbody>
+</table>
+<p>Página: @ViewBag.Page</p>

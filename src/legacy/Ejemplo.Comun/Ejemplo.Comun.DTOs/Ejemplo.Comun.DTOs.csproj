@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{3942B57B-CD41-4712-98F1-DF3957297311}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Ejemplo.Comun.DTOs</RootNamespace>
+    <AssemblyName>Ejemplo.Comun.DTOs</AssemblyName>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <Deterministic>true</Deterministic>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Runtime.Serialization" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Ejemplo.Comun.Enumeraciones\Ejemplo.Comun.Enumeraciones.csproj">
+      <Project>{51A22B6C-77EE-4B71-A0E6-764E5E981D52}</Project>
+      <Name>Ejemplo.Comun.Enumeraciones</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Clientes\ClienteDTO.cs" />
+    <Compile Include="Clientes\DireccionDTO.cs" />
+    <Compile Include="Clientes\ContactoDTO.cs" />
+    <Compile Include="Cuentas\CuentaDTO.cs" />
+    <Compile Include="Cuentas\MovimientoDTO.cs" />
+    <Compile Include="Cuentas\SaldoDTO.cs" />
+    <Compile Include="Creditos\SolicitudCreditoDTO.cs" />
+    <Compile Include="Creditos\OperacionCreditoDTO.cs" />
+    <Compile Include="Creditos\CuotaDTO.cs" />
+    <Compile Include="Creditos\PagoDTO.cs" />
+    <Compile Include="Creditos\AplicacionPagoDTO.cs" />
+    <Compile Include="Creditos\SaldoOperacionDTO.cs" />
+    <Compile Include="Cartera\ReporteCarteraDTO.cs" />
+    <Compile Include="Cartera\ClasificacionRiesgoDTO.cs" />
+    <Compile Include="Integracion\LoteImportacionDTO.cs" />
+    <Compile Include="Integracion\MensajeIntegracionDTO.cs" />
+    <Compile Include="Comunes\RespuestaOperacion.cs" />
+    <Compile Include="Comunes\PaginacionDTO.cs" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>

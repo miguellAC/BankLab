@@ -1,0 +1,11 @@
+TipoIdentificacion,NumeroIdentificacion,PrimerNombre,PrimerApellido,Email,Telefono,SucursalId
+CED,1712345678,Juan,Perez,juan.perez@ejemplo.com,0991234567,1
+CED,0923456781,Maria,Gomez,maria.gomez@ejemplo.com,0987654321,2
+RUC,1790123456001,Carlos,Ruiz,cruiz@empresa.com,022345678,1
+PAS,A1234567,John,Doe,jdoe@mail.com,0971122334,3
+CED,0102345678,Ana,Velez,avelez@ejemplo.com,0999887766,1
+CED,1109876543,Luis,Torres,ltorres@ejemplo.com,0981112223,2
+CED,0401122334,Sofia,Mendez,smendez@ejemplo.com,0975554443,1
+RUC,0992334455001,Pedro,Salas,psalas@negocio.com,042123456,2
+CED,1710987654,Lucia,Rios,lrios@ejemplo.com,0993332221,3
+CED,0704455667,Diego,Castro,dcastro@ejemplo.com,0989998887,1

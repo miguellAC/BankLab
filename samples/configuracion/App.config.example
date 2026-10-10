@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<configuration>
+  <startup> 
+      <supportedRuntime version="v4.0" sku=".NETFramework,Version=v4.8" />
+  </startup>
+
+  <connectionStrings>
+    <!-- REPLACE WITH ACTUAL CONNECTION STRING, DO NOT COMMIT SECRETS -->
+    <add name="BankLabDB" connectionString="Server=localhost;Database=BankLabDB;User Id=sa;Password=BankLab2024!;TrustServerCertificate=True;" providerName="System.Data.SqlClient" />
+  </connectionStrings>
+
+  <appSettings>
+    <add key="Environment" value="Development" />
+    <add key="LogPath" value="C:\Logs\BankLab\" />
+  </appSettings>
+
+  <!-- WCF Service Configuration Example -->
+  <system.serviceModel>
+    <services>
+      <service name="Ejemplo.WCF.Servicios.ClientesService" behaviorConfiguration="DefaultBehavior">
+        <endpoint address="net.tcp://localhost:8808/ClientesService" 
+                  binding="netTcpBinding" 
+                  bindingConfiguration="DefaultTcpBinding"
+                  contract="Ejemplo.WCF.Contratos.IClientesService" />
+      </service>
+    </services>
+
+    <bindings>
+      <netTcpBinding>
+        <binding name="DefaultTcpBinding" maxReceivedMessageSize="2147483647">
+          <readerQuotas maxStringContentLength="2147483647" maxArrayLength="2147483647" />
+          <security mode="None" /> <!-- For local dev only -->
+        </binding>
+      </netTcpBinding>
+    </bindings>
+
+    <behaviors>
+      <serviceBehaviors>
+        <behavior name="DefaultBehavior">
+          <serviceMetadata httpGetEnabled="false" />
+          <serviceDebug includeExceptionDetailInFaults="true" />
+        </behavior>
+      </serviceBehaviors>
+    </behaviors>
+  </system.serviceModel>
+</configuration>

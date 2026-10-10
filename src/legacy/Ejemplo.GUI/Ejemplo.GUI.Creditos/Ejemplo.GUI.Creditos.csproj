@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{D4444444-4444-4444-4444-444444444444}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Ejemplo.GUI.Creditos</RootNamespace>
+    <AssemblyName>Ejemplo.GUI.Creditos</AssemblyName>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <Deterministic>true</Deterministic>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="FrmConsultaCredito.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FrmConsultaCredito.Designer.cs">
+      <DependentUpon>FrmConsultaCredito.cs</DependentUpon>
+    </Compile>
+    <Compile Include="FrmCuotas.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FrmCuotas.Designer.cs">
+      <DependentUpon>FrmCuotas.cs</DependentUpon>
+    </Compile>
+    <Compile Include="FrmRegistroPago.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FrmRegistroPago.Designer.cs">
+      <DependentUpon>FrmRegistroPago.cs</DependentUpon>
+    </Compile>
+    <Compile Include="FrmCartera.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FrmCartera.Designer.cs">
+      <DependentUpon>FrmCartera.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Ejemplo.GUI.Comun\Ejemplo.GUI.Comun.csproj">
+      <Project>{A1111111-1111-1111-1111-111111111111}</Project>
+      <Name>Ejemplo.GUI.Comun</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\Ejemplo.WCFServicios\Ejemplo.WCF.Agentes\Ejemplo.WCF.Agentes.csproj">
+      <Project>{F5555555-5555-5555-5555-555555555555}</Project>
+      <Name>Ejemplo.WCF.Agentes</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>
