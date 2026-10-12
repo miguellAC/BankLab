@@ -10,11 +10,20 @@ Demuestra la arquitectura típica de sistemas heredados ("Legacy") basados en .N
 - Docker Desktop (Para SQL Server local)
 
 ## Inicio Rápido (Quick Start)
-1. **Levantar Base de Datos:** Ejecutar SQL Server en Docker en el puerto 1433.
-2. **Crear Estructura:** Ejecutar el script PowerShell `.\tools\setup-database.ps1`.
+1. **Levantar Base de Datos con Docker Compose:**
+   ```bash
+   docker compose up -d
+   ```
+2. **Crear Estructura y Semilla:** 
+   Ejecutar el script PowerShell desde el host:
+   ```powershell
+   .\tools\setup-database.ps1
+   ```
+   *(O alternativamente dentro del contenedor ejecutando `docker exec -it banklab-sqlserver /docker-entrypoint-initdb.d/init-in-container.sh`)*.
 3. **Compilar Core:** Abrir y compilar en orden `Ejemplo.Comun.sln`, `Ejemplo.Componentes.sln`, `Ejemplo.WCFServicios.sln`.
 4. **Ejecutar Servicios:** Iniciar el Host WCF con `.\tools\run-wcf-host.ps1`.
-5. **Usar la App:** Abrir y ejecutar el proyecto UI `Ejemplo.App.sln`.
+5. **Usar la App:** Abrir y ejecutar el proyecto UI `Ejemplo.Aplicaciones.sln` (`App.exe` o `ShellBP.exe`).
+6. **API Moderna:** Ejecutar `.\tools\run-api.ps1` para iniciar la API REST en .NET 8.
 
 Para instrucciones detalladas, revisa la [Guía de Instalación Completa](docs/10-instalacion-ejecucion.md).
 

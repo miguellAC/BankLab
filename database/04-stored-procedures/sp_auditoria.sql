@@ -1,11 +1,11 @@
-USE [BankLabDB];
+﻿USE [BankLabDB];
 GO
 
 -- ==========================================================
 -- Procedimiento: sp_RegistrarAuditoria
--- Descripción: Registra un evento de auditoría.
+-- DescripciÃ³n: Registra un evento de auditorÃ­a.
 -- ==========================================================
-CREATE PROCEDURE [dbo].[sp_RegistrarAuditoria]
+CREATE OR ALTER PROCEDURE [dbo].[sp_RegistrarAuditoria]
     @TipoEntidad VARCHAR(50),
     @EntidadId INT,
     @Accion VARCHAR(20),
@@ -13,11 +13,15 @@ CREATE PROCEDURE [dbo].[sp_RegistrarAuditoria]
     @ValorNuevo VARCHAR(MAX) = NULL,
     @DireccionIP VARCHAR(50) = NULL,
     @NombreEquipo VARCHAR(100) = NULL,
-    @Usuario VARCHAR(50)
+    @Usuario VARCHAR(50) = NULL,
+    @Equipo VARCHAR(100) = NULL -- Soporte para alias de NombreEquipo
 AS
 BEGIN
     SET NOCOUNT ON;
     
+    DECLARE @Usr VARCHAR(50) = COALESCE(@Usuario, SYSTEM_USER);
+    DECLARE @Eq VARCHAR(100) = COALESCE(@NombreEquipo, @Equipo, HOST_NAME());
+
     BEGIN TRY
         INSERT INTO RegistrosAuditoria (
             TipoEntidad, 
@@ -27,8 +31,8 @@ BEGIN
             ValorNuevo, 
             DireccionIP, 
             NombreEquipo, 
-            Usuario, 
-            FechaRegistro
+            UsuarioAuditoria, 
+            FechaAuditoria
         )
         VALUES (
             @TipoEntidad, 
@@ -37,8 +41,8 @@ BEGIN
             @ValorAnterior, 
             @ValorNuevo, 
             @DireccionIP, 
-            @NombreEquipo, 
-            @Usuario, 
+            @Eq, 
+            @Usr, 
             GETDATE()
         );
     END TRY
@@ -51,16 +55,21 @@ GO
 
 -- ==========================================================
 -- Procedimiento: sp_ConsultarAuditoriaEntidad
--- Descripción: Consulta los registros de auditoría de una entidad.
+-- DescripciÃ³n: Consulta los registros de auditorÃ­a de una entidad.
 -- ==========================================================
-CREATE PROCEDURE [dbo].[sp_ConsultarAuditoriaEntidad]
+CREATE OR ALTER PROCEDURE [dbo].[sp_ConsultarAuditoriaEntidad]
     @TipoEntidad VARCHAR(50),
     @EntidadId INT,
     @FechaDesde DATE = NULL,
-    @FechaHasta DATE = NULL
+    @FechaHasta DATE = NULL,
+    @Desde DATE = NULL, -- Alias
+    @Hasta DATE = NULL  -- Alias
 AS
 BEGIN
     SET NOCOUNT ON;
+
+    DECLARE @FDesde DATE = COALESCE(@FechaDesde, @Desde);
+    DECLARE @FHasta DATE = COALESCE(@FechaHasta, @Hasta);
     
     SELECT 
         AuditoriaId,
@@ -71,22 +80,22 @@ BEGIN
         ValorNuevo,
         DireccionIP,
         NombreEquipo,
-        Usuario,
-        FechaRegistro
+        UsuarioAuditoria,
+        FechaAuditoria
     FROM RegistrosAuditoria
     WHERE TipoEntidad = @TipoEntidad
       AND EntidadId = @EntidadId
-      AND (@FechaDesde IS NULL OR CAST(FechaRegistro AS DATE) >= @FechaDesde)
-      AND (@FechaHasta IS NULL OR CAST(FechaRegistro AS DATE) <= @FechaHasta)
-    ORDER BY FechaRegistro DESC;
+      AND (@FDesde IS NULL OR CAST(FechaAuditoria AS DATE) >= @FDesde)
+      AND (@FHasta IS NULL OR CAST(FechaAuditoria AS DATE) <= @FHasta)
+    ORDER BY FechaAuditoria DESC;
 END;
 GO
 
 -- ==========================================================
 -- Procedimiento: sp_ConsultarAuditoriaUsuario
--- Descripción: Consulta los registros de auditoría de un usuario.
+-- DescripciÃ³n: Consulta los registros de auditorÃ­a de un usuario.
 -- ==========================================================
-CREATE PROCEDURE [dbo].[sp_ConsultarAuditoriaUsuario]
+CREATE OR ALTER PROCEDURE [dbo].[sp_ConsultarAuditoriaUsuario]
     @Usuario VARCHAR(50),
     @FechaDesde DATE,
     @FechaHasta DATE
@@ -103,11 +112,12 @@ BEGIN
         ValorNuevo,
         DireccionIP,
         NombreEquipo,
-        Usuario,
-        FechaRegistro
+        UsuarioAuditoria,
+        FechaAuditoria
     FROM RegistrosAuditoria
-    WHERE Usuario = @Usuario
-      AND CAST(FechaRegistro AS DATE) BETWEEN @FechaDesde AND @FechaHasta
-    ORDER BY FechaRegistro DESC;
+    WHERE UsuarioAuditoria = @Usuario
+      AND CAST(FechaAuditoria AS DATE) BETWEEN @FechaDesde AND @FechaHasta
+    ORDER BY FechaAuditoria DESC;
 END;
 GO
+

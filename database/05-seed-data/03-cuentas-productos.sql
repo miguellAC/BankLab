@@ -5,29 +5,42 @@
 SET NOCOUNT ON;
 GO
 
+USE BankLabDB;
+GO
+
 PRINT 'Poblando tablas de cuentas y productos...';
 
 -- Generate 3000 Cuentas (using clients 201 to 2000, and some multiple)
+-- Schema Cuentas: CuentaId, NumeroCuenta, ClienteId, ProductoId, TipoCuentaId, SucursalId, Saldo, SaldoDisponible, Estado, FechaApertura
 SET IDENTITY_INSERT Cuentas ON;
 WITH Nums AS (
     SELECT TOP (3000) ROW_NUMBER() OVER(ORDER BY (SELECT NULL)) AS N
     FROM master.dbo.spt_values a CROSS JOIN master.dbo.spt_values b
 )
-INSERT INTO Cuentas (Id, SucursalId, TipoCuentaId, NumeroCuenta, Saldo, SaldoCanje, Estado, FechaApertura)
+INSERT INTO Cuentas (CuentaId, NumeroCuenta, ClienteId, ProductoId, TipoCuentaId, SucursalId, Saldo, SaldoDisponible, Estado, FechaApertura)
 SELECT 
-    N AS Id,
-    (ABS(CHECKSUM(NEWID())) % 10) + 1 AS SucursalId,
-    CASE 
-        WHEN N % 100 < 50 THEN 1 -- Ahorros 50%
-        WHEN N % 100 < 80 THEN 2 -- Corriente 30%
-        ELSE 3 -- CDT 20%
-    END AS TipoCuentaId,
+    N AS CuentaId,
     '2200' + RIGHT('0000000000' + CAST(N AS VARCHAR), 10) AS NumeroCuenta,
+    ((N - 1) % 1800) + 201 AS ClienteId,
+    CASE 
+        WHEN N % 100 < 50 THEN 1 -- Cuenta Ahorros
+        WHEN N % 100 < 80 THEN 2 -- Cuenta Corriente
+        ELSE 3 -- CDT
+    END AS ProductoId,
+    CASE 
+        WHEN N % 100 < 50 THEN 1 -- Ahorros
+        WHEN N % 100 < 80 THEN 2 -- Corriente
+        ELSE 3 -- CDT
+    END AS TipoCuentaId,
+    (ABS(CHECKSUM(NEWID())) % 10) + 1 AS SucursalId,
     CASE 
         WHEN (N % 100) >= 50 AND (N % 100) < 80 THEN 500000 + (ABS(CHECKSUM(NEWID())) % 10000000) -- Corriente
         ELSE ABS(CHECKSUM(NEWID())) % 50000000 -- Otros
     END AS Saldo,
-    0 AS SaldoCanje,
+    CASE 
+        WHEN (N % 100) >= 50 AND (N % 100) < 80 THEN 500000 + (ABS(CHECKSUM(NEWID())) % 10000000)
+        ELSE ABS(CHECKSUM(NEWID())) % 50000000
+    END AS SaldoDisponible,
     CASE 
         WHEN N % 100 < 85 THEN 'ACTIVA'
         WHEN N % 100 < 93 THEN 'INACTIVA'
@@ -39,23 +52,23 @@ FROM Nums;
 SET IDENTITY_INSERT Cuentas OFF;
 
 -- TitularesCuenta (Principal)
-INSERT INTO TitularesCuenta (CuentaId, ClienteId, TipoTitularidad)
+-- Schema TitularesCuenta: TitularId, CuentaId, ClienteId, TipoTitular, FechaAsignacion, Activo
+INSERT INTO TitularesCuenta (CuentaId, ClienteId, TipoTitular)
 SELECT 
-    Id AS CuentaId,
-    -- Map Account 1..3000 to Client 201..2000 (leaves clients 1-200 without products)
-    (Id % 1800) + 201 AS ClienteId,
-    'TITULAR' AS TipoTitularidad
+    CuentaId,
+    ClienteId,
+    'TITULAR' AS TipoTitular
 FROM Cuentas;
 
 -- TitularesCuenta (Cotitular para el 10%)
-INSERT INTO TitularesCuenta (CuentaId, ClienteId, TipoTitularidad)
+-- Must ensure distinct ClienteId per account
+INSERT INTO TitularesCuenta (CuentaId, ClienteId, TipoTitular)
 SELECT 
-    Id AS CuentaId,
-    -- Ensure it's a different client
-    ((Id + 500) % 1800) + 201 AS ClienteId,
-    'COTITULAR' AS TipoTitularidad
+    CuentaId,
+    ((ClienteId + 500) % 1800) + 201 AS ClienteId,
+    'COTITULAR' AS TipoTitular
 FROM Cuentas
-WHERE Id % 10 = 0;
+WHERE CuentaId % 10 = 0 AND ((ClienteId + 500) % 1800) + 201 <> ClienteId;
 
 PRINT 'Cuentas pobladas exitosamente.';
 GO

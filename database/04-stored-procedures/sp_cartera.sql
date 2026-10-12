@@ -1,11 +1,11 @@
-USE [BankLabDB];
+﻿USE [BankLabDB];
 GO
 
 -- ==========================================================
 -- Procedimiento: sp_ReporteCartera
--- Descripción: Genera un reporte detallado de cartera.
+-- DescripciÃ³n: Genera un reporte detallado de cartera.
 -- ==========================================================
-CREATE PROCEDURE [dbo].[sp_ReporteCartera]
+CREATE OR ALTER PROCEDURE [dbo].[sp_ReporteCartera]
     @FechaCorte DATE = NULL,
     @SucursalId INT = NULL,
     @Estado VARCHAR(20) = NULL,
@@ -29,10 +29,10 @@ BEGIN
     INNER JOIN SaldosOperacion so ON oc.OperacionId = so.OperacionId
     INNER JOIN Sucursales s ON c.SucursalId = s.SucursalId
     LEFT JOIN (
-        SELECT OperacionId, Categoria,
-               ROW_NUMBER() OVER(PARTITION BY OperacionId ORDER BY FechaClasificacion DESC) as rn
+        SELECT ClienteId, Categoria,
+               ROW_NUMBER() OVER(PARTITION BY ClienteId ORDER BY FechaClasificacion DESC) as rn
         FROM ClasificacionesRiesgo
-    ) cr ON oc.OperacionId = cr.OperacionId AND cr.rn = 1
+    ) cr ON c.ClienteId = cr.ClienteId AND cr.rn = 1
     WHERE oc.FechaDesembolso <= @FechaCorte
       AND (@SucursalId IS NULL OR s.SucursalId = @SucursalId)
       AND (@Estado IS NULL OR oc.Estado = @Estado)
@@ -48,9 +48,9 @@ GO
 
 -- ==========================================================
 -- Procedimiento: sp_ReporteCarteraVencida
--- Descripción: Genera un reporte de cartera vencida.
+-- DescripciÃ³n: Genera un reporte de cartera vencida.
 -- ==========================================================
-CREATE PROCEDURE [dbo].[sp_ReporteCarteraVencida]
+CREATE OR ALTER PROCEDURE [dbo].[sp_ReporteCarteraVencida]
     @DiasVencidoMinimo INT = 1
 AS
 BEGIN
@@ -77,9 +77,9 @@ GO
 
 -- ==========================================================
 -- Procedimiento: sp_ReporteResumenRiesgo
--- Descripción: Genera resumen de cartera por riesgo.
+-- DescripciÃ³n: Genera resumen de cartera por riesgo.
 -- ==========================================================
-CREATE PROCEDURE [dbo].[sp_ReporteResumenRiesgo]
+CREATE OR ALTER PROCEDURE [dbo].[sp_ReporteResumenRiesgo]
 AS
 BEGIN
     SET NOCOUNT ON;
@@ -91,12 +91,13 @@ BEGIN
     FROM OperacionesCredito oc
     INNER JOIN SaldosOperacion so ON oc.OperacionId = so.OperacionId
     LEFT JOIN (
-        SELECT OperacionId, Categoria,
-               ROW_NUMBER() OVER(PARTITION BY OperacionId ORDER BY FechaClasificacion DESC) as rn
+        SELECT ClienteId, Categoria,
+               ROW_NUMBER() OVER(PARTITION BY ClienteId ORDER BY FechaClasificacion DESC) as rn
         FROM ClasificacionesRiesgo
-    ) cr ON oc.OperacionId = cr.OperacionId AND cr.rn = 1
+    ) cr ON oc.ClienteId = cr.ClienteId AND cr.rn = 1
     WHERE oc.Estado IN ('VIGENTE', 'MORA')
     GROUP BY ISNULL(cr.Categoria, 'SIN CLASIFICAR')
     ORDER BY CategoriaRiesgo ASC;
 END;
 GO
+

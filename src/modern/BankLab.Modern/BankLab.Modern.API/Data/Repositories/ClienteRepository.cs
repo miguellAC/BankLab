@@ -16,7 +16,12 @@ public class ClienteRepository : IClienteRepository
     public async Task<ClienteResponse?> GetByIdAsync(int clienteId)
     {
         using var connection = new SqlConnection(_connectionString);
-        using var command = new SqlCommand("SELECT ClienteId, Nombres, Apellidos, TipoIdentificacion, NumeroIdentificacion, Email, SucursalId, Estado, FechaRegistro FROM Clientes WHERE ClienteId = @Id", connection);
+        using var command = new SqlCommand(@"
+            SELECT ClienteId, 
+                   PrimerNombre, SegundoNombre, PrimerApellido, SegundoApellido,
+                   TipoIdentificacionId, NumeroIdentificacion, Email, SucursalId, Estado, FechaRegistro 
+            FROM Clientes 
+            WHERE ClienteId = @Id", connection);
         command.Parameters.AddWithValue("@Id", clienteId);
 
         await connection.OpenAsync();
@@ -32,7 +37,12 @@ public class ClienteRepository : IClienteRepository
     public async Task<ClienteResponse?> GetByIdentificacionAsync(int tipoId, string numero)
     {
         using var connection = new SqlConnection(_connectionString);
-        using var command = new SqlCommand("SELECT ClienteId, Nombres, Apellidos, TipoIdentificacion, NumeroIdentificacion, Email, SucursalId, Estado, FechaRegistro FROM Clientes WHERE TipoIdentificacion = @Tipo AND NumeroIdentificacion = @Numero", connection);
+        using var command = new SqlCommand(@"
+            SELECT ClienteId, 
+                   PrimerNombre, SegundoNombre, PrimerApellido, SegundoApellido,
+                   TipoIdentificacionId, NumeroIdentificacion, Email, SucursalId, Estado, FechaRegistro 
+            FROM Clientes 
+            WHERE TipoIdentificacionId = @Tipo AND NumeroIdentificacion = @Numero", connection);
         command.Parameters.AddWithValue("@Tipo", tipoId);
         command.Parameters.AddWithValue("@Numero", numero);
 
@@ -53,10 +63,13 @@ public class ClienteRepository : IClienteRepository
 
         using var connection = new SqlConnection(_connectionString);
         using var command = new SqlCommand(@"
-            SELECT COUNT(*) OVER() as TotalRecords, ClienteId, Nombres, Apellidos, TipoIdentificacion, NumeroIdentificacion, Email, SucursalId, Estado, FechaRegistro
+            SELECT COUNT(*) OVER() as TotalRecords, 
+                   ClienteId, 
+                   PrimerNombre, SegundoNombre, PrimerApellido, SegundoApellido,
+                   TipoIdentificacionId, NumeroIdentificacion, Email, SucursalId, Estado, FechaRegistro
             FROM Clientes
-            WHERE (@Nombres IS NULL OR Nombres LIKE '%' + @Nombres + '%')
-              AND (@Apellidos IS NULL OR Apellidos LIKE '%' + @Apellidos + '%')
+            WHERE (@Nombres IS NULL OR (PrimerNombre + ' ' + ISNULL(SegundoNombre, '')) LIKE '%' + @Nombres + '%')
+              AND (@Apellidos IS NULL OR (PrimerApellido + ' ' + ISNULL(SegundoApellido, '')) LIKE '%' + @Apellidos + '%')
               AND (@Identificacion IS NULL OR NumeroIdentificacion = @Identificacion)
               AND (@Estado IS NULL OR Estado = @Estado)
               AND (@SucursalId IS NULL OR SucursalId = @SucursalId)
@@ -94,13 +107,18 @@ public class ClienteRepository : IClienteRepository
 
     private static ClienteResponse MapToResponse(SqlDataReader reader)
     {
-        var nombres = reader["Nombres"].ToString() ?? "";
-        var apellidos = reader["Apellidos"].ToString() ?? "";
+        var pNombre = reader["PrimerNombre"].ToString() ?? "";
+        var sNombre = reader["SegundoNombre"] != DBNull.Value ? reader["SegundoNombre"].ToString() : null;
+        var pApellido = reader["PrimerApellido"].ToString() ?? "";
+        var sApellido = reader["SegundoApellido"] != DBNull.Value ? reader["SegundoApellido"].ToString() : null;
+
+        var nombreCompleto = string.Join(" ", new[] { pNombre, sNombre, pApellido, sApellido }.Where(s => !string.IsNullOrWhiteSpace(s))).Trim();
+
         return new ClienteResponse
         {
             ClienteId = Convert.ToInt32(reader["ClienteId"]),
-            NombreCompleto = $"{nombres} {apellidos}".Trim(),
-            TipoIdentificacion = Convert.ToInt32(reader["TipoIdentificacion"]),
+            NombreCompleto = nombreCompleto,
+            TipoIdentificacion = Convert.ToInt32(reader["TipoIdentificacionId"]),
             NumeroIdentificacion = reader["NumeroIdentificacion"].ToString() ?? "",
             Email = reader["Email"] != DBNull.Value ? reader["Email"].ToString() : null,
             Sucursal = Convert.ToInt32(reader["SucursalId"]),

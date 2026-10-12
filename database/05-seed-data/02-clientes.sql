@@ -5,6 +5,9 @@
 SET NOCOUNT ON;
 GO
 
+USE BankLabDB;
+GO
+
 PRINT 'Poblando tablas de clientes...';
 
 -- Generate 2000 Clientes
@@ -30,10 +33,10 @@ WITH Nums AS (
     SELECT TOP (2000) ROW_NUMBER() OVER(ORDER BY (SELECT NULL)) AS N
     FROM master.dbo.spt_values a CROSS JOIN master.dbo.spt_values b
 )
-INSERT INTO Clientes (Id, SucursalId, TipoIdentificacionId, Identificacion, Nombres, Apellidos, FechaNacimiento, Estado, FechaRegistro)
+INSERT INTO Clientes (ClienteId, SucursalId, TipoIdentificacionId, NumeroIdentificacion, PrimerNombre, SegundoNombre, PrimerApellido, SegundoApellido, FechaNacimiento, Genero, Email, Telefono, Estado, FechaRegistro)
 SELECT 
-    N AS Id,
-    (ABS(CHECKSUM(NEWID())) % 10) + 1 AS SucursalId,
+    N AS ClienteId,
+    ((N - 1) % 10) + 1 AS SucursalId,
     CASE 
         WHEN N % 100 < 80 THEN 1 -- CC (80%)
         WHEN N % 100 < 90 THEN 3 -- CE (10%)
@@ -41,29 +44,33 @@ SELECT
         WHEN N % 100 < 98 THEN 4 -- TI (3%)
         ELSE 5 -- PA (2%)
     END AS TipoIdentificacionId,
-    CAST(1000000000 + N AS VARCHAR) AS Identificacion,
-    (SELECT Nombre FROM #Nombres WHERE Id = (ABS(CHECKSUM(NEWID())) % 50) + 1) + 
-        CASE WHEN N % 2 = 0 THEN ' ' + (SELECT Nombre FROM #Nombres WHERE Id = (ABS(CHECKSUM(NEWID())) % 50) + 1) ELSE '' END AS Nombres,
-    (SELECT Apellido FROM #Apellidos WHERE Id = (ABS(CHECKSUM(NEWID())) % 40) + 1) + ' ' +
-        (SELECT Apellido FROM #Apellidos WHERE Id = (ABS(CHECKSUM(NEWID())) % 40) + 1) AS Apellidos,
-    DATEADD(DAY, -(ABS(CHECKSUM(NEWID())) % 20000) - 6570, GETDATE()) AS FechaNacimiento, -- 18 to 72 years ago
+    CAST(1000000000 + N AS VARCHAR) AS NumeroIdentificacion,
+    (SELECT TOP 1 Nombre FROM #Nombres WHERE Id = ((N * 7) % 50) + 1) AS PrimerNombre,
+    CASE WHEN N % 2 = 0 THEN (SELECT TOP 1 Nombre FROM #Nombres WHERE Id = ((N * 13) % 50) + 1) ELSE NULL END AS SegundoNombre,
+    (SELECT TOP 1 Apellido FROM #Apellidos WHERE Id = ((N * 11) % 40) + 1) AS PrimerApellido,
+    (SELECT TOP 1 Apellido FROM #Apellidos WHERE Id = ((N * 17) % 40) + 1) AS SegundoApellido,
+    DATEADD(DAY, -((N * 13) % 20000) - 6570, GETDATE()) AS FechaNacimiento, -- 18 to 72 years ago
+    CASE WHEN N % 2 = 0 THEN 'M' ELSE 'F' END AS Genero,
+    'cliente' + CAST(N AS VARCHAR) + '@ejemplo.com' AS Email,
+    '300' + RIGHT('0000000' + CAST(N AS VARCHAR), 7) AS Telefono,
     CASE 
         WHEN N % 100 < 90 THEN 'ACTIVO'
         WHEN N % 100 < 95 THEN 'INACTIVO'
         WHEN N % 100 < 98 THEN 'BLOQUEADO'
         ELSE 'FALLECIDO'
     END AS Estado,
-    DATEADD(DAY, -(ABS(CHECKSUM(NEWID())) % 3000), GETDATE()) AS FechaRegistro
+    DATEADD(DAY, -((N * 5) % 3000), GETDATE()) AS FechaRegistro
 FROM Nums;
 SET IDENTITY_INSERT Clientes OFF;
 
 -- DireccionesCliente
+-- Check constraint: TipoDireccion IN ('RESIDENCIA','TRABAJO','CORRESPONDENCIA','OTRA')
 INSERT INTO DireccionesCliente (ClienteId, TipoDireccion, Direccion, Ciudad, Departamento, Pais, EsPrincipal)
 SELECT 
-    Id AS ClienteId,
-    'RESIDENCIAL' AS TipoDireccion,
-    'Calle ' + CAST(ABS(CHECKSUM(NEWID())) % 150 + 1 AS VARCHAR) + ' # ' + CAST(ABS(CHECKSUM(NEWID())) % 100 + 1 AS VARCHAR) + '-' + CAST(ABS(CHECKSUM(NEWID())) % 100 + 1 AS VARCHAR) AS Direccion,
-    CHOOSE((ABS(CHECKSUM(NEWID())) % 10) + 1, 'Bogotá', 'Medellín', 'Cali', 'Barranquilla', 'Cartagena', 'Bucaramanga', 'Pereira', 'Manizales', 'Ibagué', 'Santa Marta') AS Ciudad,
+    ClienteId,
+    'RESIDENCIA' AS TipoDireccion,
+    'Calle ' + CAST((ClienteId % 150) + 1 AS VARCHAR) + ' # ' + CAST((ClienteId % 100) + 1 AS VARCHAR) + '-' + CAST(((ClienteId * 3) % 100) + 1 AS VARCHAR) AS Direccion,
+    CHOOSE((ClienteId % 10) + 1, 'Bogotá', 'Medellín', 'Cali', 'Barranquilla', 'Cartagena', 'Bucaramanga', 'Pereira', 'Manizales', 'Ibagué', 'Santa Marta') AS Ciudad,
     'Dpto' AS Departamento,
     'Colombia' AS Pais,
     1 AS EsPrincipal
@@ -72,34 +79,35 @@ FROM Clientes;
 -- Segundas direcciones para el 50%
 INSERT INTO DireccionesCliente (ClienteId, TipoDireccion, Direccion, Ciudad, Departamento, Pais, EsPrincipal)
 SELECT 
-    Id AS ClienteId,
+    ClienteId,
     'TRABAJO' AS TipoDireccion,
-    'Carrera ' + CAST(ABS(CHECKSUM(NEWID())) % 150 + 1 AS VARCHAR) + ' # ' + CAST(ABS(CHECKSUM(NEWID())) % 100 + 1 AS VARCHAR) + '-' + CAST(ABS(CHECKSUM(NEWID())) % 100 + 1 AS VARCHAR) AS Direccion,
-    CHOOSE((ABS(CHECKSUM(NEWID())) % 10) + 1, 'Bogotá', 'Medellín', 'Cali', 'Barranquilla', 'Cartagena', 'Bucaramanga', 'Pereira', 'Manizales', 'Ibagué', 'Santa Marta') AS Ciudad,
+    'Carrera ' + CAST((ClienteId % 150) + 1 AS VARCHAR) + ' # ' + CAST((ClienteId % 100) + 1 AS VARCHAR) + '-' + CAST(((ClienteId * 3) % 100) + 1 AS VARCHAR) AS Direccion,
+    CHOOSE((ClienteId % 10) + 1, 'Bogotá', 'Medellín', 'Cali', 'Barranquilla', 'Cartagena', 'Bucaramanga', 'Pereira', 'Manizales', 'Ibagué', 'Santa Marta') AS Ciudad,
     'Dpto' AS Departamento,
     'Colombia' AS Pais,
     0 AS EsPrincipal
 FROM Clientes
-WHERE Id % 2 = 0;
+WHERE ClienteId % 2 = 0;
 
 -- ContactosCliente
+-- Check constraint: TipoContacto IN ('TELEFONO','CELULAR','EMAIL','FAX')
 INSERT INTO ContactosCliente (ClienteId, TipoContacto, Valor, EsPrincipal)
 SELECT 
-    Id AS ClienteId,
+    ClienteId,
     'CELULAR' AS TipoContacto,
-    '3' + CAST(100000000 + ABS(CHECKSUM(NEWID())) % 200000000 AS VARCHAR) AS Valor,
+    '3' + RIGHT('000000000' + CAST(100000000 + ClienteId AS VARCHAR), 9) AS Valor,
     1 AS EsPrincipal
 FROM Clientes;
 
 -- Segundos contactos (Email) para el 25%
 INSERT INTO ContactosCliente (ClienteId, TipoContacto, Valor, EsPrincipal)
 SELECT 
-    Id AS ClienteId,
+    ClienteId,
     'EMAIL' AS TipoContacto,
-    LOWER(REPLACE(Nombres, ' ', '.') + '.' + REPLACE(Apellidos, ' ', '.') + CAST(Id AS VARCHAR) + '@ejemplo.com') AS Valor,
+    LOWER(PrimerNombre + '.' + PrimerApellido + CAST(ClienteId AS VARCHAR) + '@ejemplo.com') AS Valor,
     0 AS EsPrincipal
 FROM Clientes
-WHERE Id % 4 = 0;
+WHERE ClienteId % 4 = 0;
 
 DROP TABLE #Nombres;
 DROP TABLE #Apellidos;

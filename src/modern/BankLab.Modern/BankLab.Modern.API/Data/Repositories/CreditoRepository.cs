@@ -17,11 +17,16 @@ public class CreditoRepository : ICreditoRepository
     {
         using var connection = new SqlConnection(_connectionString);
         using var command = new SqlCommand(@"
-            SELECT o.OperacionId, o.NumeroOperacion, o.Producto, o.MontoDesembolsado, o.TasaAnual, o.PlazoMeses, o.Estado, 
-                   c.Nombres + ' ' + c.Apellidos as NombreCliente,
-                   0 as SaldoVigente, 0 as SaldoVencido, 0 as SaldoTotal, 0 as DiasEnMora
+            SELECT o.OperacionId, o.NumeroOperacion, p.Nombre as Producto, o.MontoDesembolsado, o.TasaAnual, o.PlazoMeses, o.Estado, 
+                   LTRIM(RTRIM(c.PrimerNombre + ' ' + ISNULL(c.SegundoNombre + ' ', '') + c.PrimerApellido + ' ' + ISNULL(c.SegundoApellido, ''))) as NombreCliente,
+                   ISNULL(s.SaldoCapitalVigente, 0) as SaldoVigente, 
+                   ISNULL(s.SaldoCapitalVencido, 0) as SaldoVencido, 
+                   ISNULL(s.SaldoTotal, 0) as SaldoTotal, 
+                   ISNULL(s.DiasEnMora, 0) as DiasEnMora
             FROM OperacionesCredito o
             JOIN Clientes c ON o.ClienteId = c.ClienteId
+            JOIN ProductosCredito p ON o.ProductoCreditoId = p.ProductoCreditoId
+            LEFT JOIN SaldosOperacion s ON o.OperacionId = s.OperacionId
             WHERE (@OpId IS NULL OR o.OperacionId = @OpId)
               AND (@NumOp IS NULL OR o.NumeroOperacion = @NumOp)", connection);
 
@@ -43,10 +48,10 @@ public class CreditoRepository : ICreditoRepository
                 TasaAnual = Convert.ToDecimal(reader["TasaAnual"]),
                 PlazoMeses = Convert.ToInt32(reader["PlazoMeses"]),
                 Estado = reader["Estado"].ToString() ?? "",
-                SaldoVigente = 0, // En un sistema real se calcularía o consultaría de otra tabla
-                SaldoVencido = 0,
-                SaldoTotal = 0,
-                DiasEnMora = 0
+                SaldoVigente = Convert.ToDecimal(reader["SaldoVigente"]),
+                SaldoVencido = Convert.ToDecimal(reader["SaldoVencido"]),
+                SaldoTotal = Convert.ToDecimal(reader["SaldoTotal"]),
+                DiasEnMora = Convert.ToInt32(reader["DiasEnMora"])
             };
         }
         return null;
@@ -54,24 +59,61 @@ public class CreditoRepository : ICreditoRepository
 
     public async Task<object?> GetSaldosAsync(int operacionId)
     {
-        // En un caso real llamaría a un SP. Retornamos datos de prueba.
-        await Task.CompletedTask;
-        return new { OperacionId = operacionId, SaldoCapital = 1000m, SaldoInteres = 50m, SaldoMora = 0m, TotalPagar = 1050m };
+        using var connection = new SqlConnection(_connectionString);
+        using var command = new SqlCommand(@"
+            SELECT OperacionId, SaldoCapitalVigente, SaldoCapitalVencido, SaldoInteresVigente, SaldoInteresVencido, SaldoTotal, DiasEnMora
+            FROM SaldosOperacion
+            WHERE OperacionId = @OperacionId", connection);
+        command.Parameters.AddWithValue("@OperacionId", operacionId);
+
+        await connection.OpenAsync();
+        using var reader = await command.ExecuteReaderAsync();
+        if (await reader.ReadAsync())
+        {
+            return new
+            {
+                OperacionId = Convert.ToInt32(reader["OperacionId"]),
+                SaldoCapital = Convert.ToDecimal(reader["SaldoCapitalVigente"]),
+                SaldoVencido = Convert.ToDecimal(reader["SaldoCapitalVencido"]),
+                SaldoInteres = Convert.ToDecimal(reader["SaldoInteresVigente"]),
+                SaldoInteresVencido = Convert.ToDecimal(reader["SaldoInteresVencido"]),
+                TotalPagar = Convert.ToDecimal(reader["SaldoTotal"]),
+                DiasMora = Convert.ToInt32(reader["DiasEnMora"])
+            };
+        }
+        return null;
     }
 
     public record CuotaItem(int NumeroCuota, decimal Valor, DateTime FechaVencimiento, string Estado);
 
     public async Task<IEnumerable<object>> GetCuotasAsync(int operacionId, bool soloVencidas, bool soloPendientes)
     {
-        await Task.CompletedTask;
-        var cuotas = new List<CuotaItem>
-        {
-            new CuotaItem(1, 500m, DateTime.Now.AddDays(-10), "VENCIDA"),
-            new CuotaItem(2, 500m, DateTime.Now.AddDays(20), "PENDIENTE")
-        };
+        var cuotas = new List<CuotaItem>();
+        using var connection = new SqlConnection(_connectionString);
+        using var command = new SqlCommand(@"
+            SELECT NumeroCuota, ValorCuota, FechaVencimiento, Estado
+            FROM Cuotas
+            WHERE OperacionId = @OperacionId
+              AND (@SoloVencidas = 0 OR Estado = 'VENCIDA')
+              AND (@SoloPendientes = 0 OR Estado IN ('PENDIENTE', 'VENCIDA'))
+            ORDER BY NumeroCuota", connection);
 
-        return cuotas
-            .Where(c => (!soloVencidas || c.Estado == "VENCIDA") && (!soloPendientes || c.Estado == "PENDIENTE" || c.Estado == "VENCIDA"))
-            .Cast<object>();
+        command.Parameters.AddWithValue("@OperacionId", operacionId);
+        command.Parameters.AddWithValue("@SoloVencidas", soloVencidas ? 1 : 0);
+        command.Parameters.AddWithValue("@SoloPendientes", soloPendientes ? 1 : 0);
+
+        await connection.OpenAsync();
+        using var reader = await command.ExecuteReaderAsync();
+        while (await reader.ReadAsync())
+        {
+            cuotas.Add(new CuotaItem(
+                Convert.ToInt32(reader["NumeroCuota"]),
+                Convert.ToDecimal(reader["ValorCuota"]),
+                Convert.ToDateTime(reader["FechaVencimiento"]),
+                reader["Estado"].ToString() ?? ""
+            ));
+        }
+
+        return cuotas.Cast<object>();
     }
 }

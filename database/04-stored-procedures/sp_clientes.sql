@@ -5,43 +5,41 @@ GO
 -- Procedimiento: sp_ConsultarClientePorIdentificacion
 -- Descripción: Consulta datos básicos de un cliente por su identificación.
 -- ==========================================================
-CREATE PROCEDURE [dbo].[sp_ConsultarClientePorIdentificacion]
-    @TipoIdentificacionId INT,
-    @NumeroIdentificacion VARCHAR(20)
+CREATE OR ALTER PROCEDURE [dbo].[sp_ConsultarClientePorIdentificacion]
+    @TipoIdentificacionId INT = NULL,
+    @NumeroIdentificacion VARCHAR(20),
+    @TipoIdentificacion INT = NULL -- Soporte para alias de parámetro
 AS
 BEGIN
     SET NOCOUNT ON;
     
+    DECLARE @TipoId INT = COALESCE(@TipoIdentificacionId, @TipoIdentificacion);
+
     SELECT 
         c.ClienteId,
+        c.TipoIdentificacionId,
+        ti.Codigo AS CodigoTipoIdentificacion,
+        ti.Nombre AS NombreTipoIdentificacion,
+        c.NumeroIdentificacion,
         c.PrimerNombre,
         c.SegundoNombre,
         c.PrimerApellido,
         c.SegundoApellido,
+        (c.PrimerNombre + ' ' + ISNULL(c.SegundoNombre + ' ', '') + c.PrimerApellido + ISNULL(' ' + c.SegundoApellido, '')) AS Nombres,
+        c.PrimerApellido AS Apellidos,
+        c.TipoIdentificacionId AS TipoIdentificacion,
         c.FechaNacimiento,
         c.Genero,
+        c.Email,
+        c.Telefono,
+        c.SucursalId,
+        s.Nombre AS NombreSucursal,
         c.Estado,
-        ti.Nombre AS TipoIdentificacion,
-        c.NumeroIdentificacion,
-        s.Nombre AS Sucursal,
-        d.Direccion,
-        d.Ciudad,
-        co.Email,
-        co.Telefono
+        c.FechaRegistro
     FROM Clientes c
     INNER JOIN TiposIdentificacion ti ON c.TipoIdentificacionId = ti.TipoIdentificacionId
     LEFT JOIN Sucursales s ON c.SucursalId = s.SucursalId
-    LEFT JOIN (
-        SELECT ClienteId, Direccion, Ciudad,
-               ROW_NUMBER() OVER(PARTITION BY ClienteId ORDER BY FechaRegistro DESC) as rn
-        FROM DireccionesCliente
-    ) d ON c.ClienteId = d.ClienteId AND d.rn = 1
-    LEFT JOIN (
-        SELECT ClienteId, Email, Telefono,
-               ROW_NUMBER() OVER(PARTITION BY ClienteId ORDER BY FechaRegistro DESC) as rn
-        FROM ContactosCliente
-    ) co ON c.ClienteId = co.ClienteId AND co.rn = 1
-    WHERE c.TipoIdentificacionId = @TipoIdentificacionId
+    WHERE (@TipoId IS NULL OR c.TipoIdentificacionId = @TipoId)
       AND c.NumeroIdentificacion = @NumeroIdentificacion;
 END;
 GO
@@ -50,23 +48,52 @@ GO
 -- Procedimiento: sp_ConsultarClientePorId
 -- Descripción: Consulta el detalle completo de un cliente por su ID.
 -- ==========================================================
-CREATE PROCEDURE [dbo].[sp_ConsultarClientePorId]
+CREATE OR ALTER PROCEDURE [dbo].[sp_ConsultarClientePorId]
     @ClienteId INT
 AS
 BEGIN
     SET NOCOUNT ON;
     
+    -- 1. Cabecera del Cliente
     SELECT 
-        c.*,
-        ti.Nombre AS TipoIdentificacion,
-        s.Nombre AS Sucursal
+        c.ClienteId,
+        c.TipoIdentificacionId,
+        ti.Codigo AS CodigoTipoIdentificacion,
+        ti.Nombre AS NombreTipoIdentificacion,
+        c.NumeroIdentificacion,
+        c.PrimerNombre,
+        c.SegundoNombre,
+        c.PrimerApellido,
+        c.SegundoApellido,
+        (c.PrimerNombre + ' ' + ISNULL(c.SegundoNombre + ' ', '') + c.PrimerApellido + ISNULL(' ' + c.SegundoApellido, '')) AS Nombres,
+        c.PrimerApellido AS Apellidos,
+        c.TipoIdentificacionId AS TipoIdentificacion,
+        c.FechaNacimiento,
+        c.Genero,
+        c.Email,
+        c.Telefono,
+        c.SucursalId,
+        s.Nombre AS NombreSucursal,
+        c.Estado,
+        c.FechaRegistro
     FROM Clientes c
     INNER JOIN TiposIdentificacion ti ON c.TipoIdentificacionId = ti.TipoIdentificacionId
     LEFT JOIN Sucursales s ON c.SucursalId = s.SucursalId
     WHERE c.ClienteId = @ClienteId;
 
-    SELECT * FROM DireccionesCliente WHERE ClienteId = @ClienteId ORDER BY FechaRegistro DESC;
-    SELECT * FROM ContactosCliente WHERE ClienteId = @ClienteId ORDER BY FechaRegistro DESC;
+    -- 2. Direcciones
+    SELECT 
+        DireccionId, ClienteId, TipoDireccion, Direccion, Ciudad, Departamento, CodigoPostal, Pais, EsPrincipal, Activa, FechaCreacion
+    FROM DireccionesCliente 
+    WHERE ClienteId = @ClienteId 
+    ORDER BY EsPrincipal DESC, FechaCreacion DESC;
+
+    -- 3. Contactos
+    SELECT 
+        ContactoId, ClienteId, TipoContacto, Valor, EsPrincipal, Activo, FechaCreacion
+    FROM ContactosCliente 
+    WHERE ClienteId = @ClienteId 
+    ORDER BY EsPrincipal DESC, FechaCreacion DESC;
 END;
 GO
 
@@ -74,7 +101,7 @@ GO
 -- Procedimiento: sp_BuscarClientes
 -- Descripción: Búsqueda paginada de clientes.
 -- ==========================================================
-CREATE PROCEDURE [dbo].[sp_BuscarClientes]
+CREATE OR ALTER PROCEDURE [dbo].[sp_BuscarClientes]
     @Nombres VARCHAR(100) = NULL,
     @Apellidos VARCHAR(100) = NULL,
     @NumeroIdentificacion VARCHAR(20) = NULL,
@@ -89,21 +116,36 @@ BEGIN
     DECLARE @Offset INT = (@PageNumber - 1) * @PageSize;
 
     SELECT COUNT(*) AS TotalRegistros
-    FROM Clientes
-    WHERE (@Nombres IS NULL OR (PrimerNombre + ' ' + ISNULL(SegundoNombre,'')) LIKE '%' + @Nombres + '%')
-      AND (@Apellidos IS NULL OR (PrimerApellido + ' ' + ISNULL(SegundoApellido,'')) LIKE '%' + @Apellidos + '%')
-      AND (@NumeroIdentificacion IS NULL OR NumeroIdentificacion = @NumeroIdentificacion)
-      AND (@Estado IS NULL OR Estado = @Estado)
-      AND (@SucursalId IS NULL OR SucursalId = @SucursalId);
+    FROM Clientes c
+    WHERE (@Nombres IS NULL OR (c.PrimerNombre + ' ' + ISNULL(c.SegundoNombre,'')) LIKE '%' + @Nombres + '%')
+      AND (@Apellidos IS NULL OR (c.PrimerApellido + ' ' + ISNULL(c.SegundoApellido,'')) LIKE '%' + @Apellidos + '%')
+      AND (@NumeroIdentificacion IS NULL OR c.NumeroIdentificacion = @NumeroIdentificacion)
+      AND (@Estado IS NULL OR c.Estado = @Estado)
+      AND (@SucursalId IS NULL OR c.SucursalId = @SucursalId);
 
     SELECT 
         c.ClienteId,
-        c.PrimerNombre,
-        c.PrimerApellido,
+        c.TipoIdentificacionId,
+        ti.Codigo AS CodigoTipoIdentificacion,
+        ti.Nombre AS NombreTipoIdentificacion,
         c.NumeroIdentificacion,
+        c.PrimerNombre,
+        c.SegundoNombre,
+        c.PrimerApellido,
+        c.SegundoApellido,
+        (c.PrimerNombre + ' ' + ISNULL(c.SegundoNombre + ' ', '') + c.PrimerApellido + ISNULL(' ' + c.SegundoApellido, '')) AS Nombres,
+        c.PrimerApellido AS Apellidos,
+        c.TipoIdentificacionId AS TipoIdentificacion,
+        c.FechaNacimiento,
+        c.Genero,
+        c.Email,
+        c.Telefono,
+        c.SucursalId,
+        s.Nombre AS NombreSucursal,
         c.Estado,
-        s.Nombre AS Sucursal
+        c.FechaRegistro
     FROM Clientes c
+    INNER JOIN TiposIdentificacion ti ON c.TipoIdentificacionId = ti.TipoIdentificacionId
     LEFT JOIN Sucursales s ON c.SucursalId = s.SucursalId
     WHERE (@Nombres IS NULL OR (c.PrimerNombre + ' ' + ISNULL(c.SegundoNombre,'')) LIKE '%' + @Nombres + '%')
       AND (@Apellidos IS NULL OR (c.PrimerApellido + ' ' + ISNULL(c.SegundoApellido,'')) LIKE '%' + @Apellidos + '%')
@@ -119,27 +161,36 @@ GO
 -- Procedimiento: sp_RegistrarCliente
 -- Descripción: Registra un cliente junto con sus direcciones y contactos.
 -- ==========================================================
-CREATE PROCEDURE [dbo].[sp_RegistrarCliente]
-    @TipoIdentificacionId INT,
+CREATE OR ALTER PROCEDURE [dbo].[sp_RegistrarCliente]
+    @TipoIdentificacionId INT = NULL,
     @NumeroIdentificacion VARCHAR(20),
-    @PrimerNombre VARCHAR(50),
+    @PrimerNombre VARCHAR(50) = NULL,
     @SegundoNombre VARCHAR(50) = NULL,
-    @PrimerApellido VARCHAR(50),
+    @PrimerApellido VARCHAR(50) = NULL,
     @SegundoApellido VARCHAR(50) = NULL,
-    @FechaNacimiento DATE,
-    @Genero CHAR(1),
-    @Email VARCHAR(100),
-    @Telefono VARCHAR(20),
-    @SucursalId INT,
-    @Direccion VARCHAR(200),
-    @Ciudad VARCHAR(100),
-    @Usuario VARCHAR(50),
+    @Nombres VARCHAR(100) = NULL, -- Alias
+    @Apellidos VARCHAR(100) = NULL, -- Alias
+    @TipoIdentificacion INT = NULL, -- Alias
+    @FechaNacimiento DATE = NULL,
+    @Genero CHAR(1) = 'O',
+    @Email VARCHAR(100) = NULL,
+    @Telefono VARCHAR(20) = NULL,
+    @SucursalId INT = 1,
+    @Direccion VARCHAR(200) = NULL,
+    @Ciudad VARCHAR(100) = 'Bogotá',
+    @Usuario VARCHAR(50) = NULL,
+    @UsuarioAuditoria VARCHAR(50) = NULL, -- Alias
     @ClienteId INT OUTPUT
 AS
 BEGIN
     SET NOCOUNT ON;
     
-    IF EXISTS (SELECT 1 FROM Clientes WHERE TipoIdentificacionId = @TipoIdentificacionId AND NumeroIdentificacion = @NumeroIdentificacion)
+    DECLARE @TId INT = COALESCE(@TipoIdentificacionId, @TipoIdentificacion, 1);
+    DECLARE @PNom VARCHAR(50) = COALESCE(@PrimerNombre, PARSENAME(REPLACE(@Nombres, ' ', '.'), 2), @Nombres, 'Nombre');
+    DECLARE @PApe VARCHAR(50) = COALESCE(@PrimerApellido, PARSENAME(REPLACE(@Apellidos, ' ', '.'), 2), @Apellidos, 'Apellido');
+    DECLARE @Usr VARCHAR(50) = COALESCE(@Usuario, @UsuarioAuditoria, SYSTEM_USER);
+
+    IF EXISTS (SELECT 1 FROM Clientes WHERE TipoIdentificacionId = @TId AND NumeroIdentificacion = @NumeroIdentificacion)
     BEGIN
         RAISERROR('El cliente con esta identificación ya existe.', 16, 1);
         RETURN;
@@ -148,19 +199,36 @@ BEGIN
     BEGIN TRY
         BEGIN TRANSACTION;
         
-        INSERT INTO Clientes (TipoIdentificacionId, NumeroIdentificacion, PrimerNombre, SegundoNombre, PrimerApellido, SegundoApellido, FechaNacimiento, Genero, Estado, SucursalId, FechaRegistro, UsuarioRegistro)
-        VALUES (@TipoIdentificacionId, @NumeroIdentificacion, @PrimerNombre, @SegundoNombre, @PrimerApellido, @SegundoApellido, @FechaNacimiento, @Genero, 'ACTIVO', @SucursalId, GETDATE(), @Usuario);
+        INSERT INTO Clientes (
+            TipoIdentificacionId, NumeroIdentificacion, PrimerNombre, SegundoNombre, PrimerApellido, SegundoApellido,
+            FechaNacimiento, Genero, Email, Telefono, SucursalId, Estado, FechaRegistro, UsuarioCreacion
+        )
+        VALUES (
+            @TId, @NumeroIdentificacion, @PNom, @SegundoNombre, @PApe, @SegundoApellido,
+            @FechaNacimiento, @Genero, @Email, @Telefono, @SucursalId, 'ACTIVO', GETDATE(), @Usr
+        );
         
         SET @ClienteId = SCOPE_IDENTITY();
         
-        INSERT INTO DireccionesCliente (ClienteId, Direccion, Ciudad, FechaRegistro)
-        VALUES (@ClienteId, @Direccion, @Ciudad, GETDATE());
+        IF @Direccion IS NOT NULL
+        BEGIN
+            INSERT INTO DireccionesCliente (ClienteId, TipoDireccion, Direccion, Ciudad, EsPrincipal, Activa)
+            VALUES (@ClienteId, 'RESIDENCIA', @Direccion, @Ciudad, 1, 1);
+        END
         
-        INSERT INTO ContactosCliente (ClienteId, Email, Telefono, FechaRegistro)
-        VALUES (@ClienteId, @Email, @Telefono, GETDATE());
+        IF @Telefono IS NOT NULL OR @Email IS NOT NULL
+        BEGIN
+            IF @Telefono IS NOT NULL
+                INSERT INTO ContactosCliente (ClienteId, TipoContacto, Valor, EsPrincipal, Activo)
+                VALUES (@ClienteId, 'TELEFONO', @Telefono, 1, 1);
+
+            IF @Email IS NOT NULL
+                INSERT INTO ContactosCliente (ClienteId, TipoContacto, Valor, EsPrincipal, Activo)
+                VALUES (@ClienteId, 'EMAIL', @Email, 0, 1);
+        END
         
-        INSERT INTO RegistrosAuditoria (TipoEntidad, EntidadId, Accion, ValorNuevo, Usuario, FechaRegistro)
-        VALUES ('Cliente', @ClienteId, 'CREAR', 'Cliente Registrado', @Usuario, GETDATE());
+        INSERT INTO RegistrosAuditoria (TipoEntidad, EntidadId, Accion, ValorNuevo, UsuarioAuditoria, FechaAuditoria)
+        VALUES ('Cliente', @ClienteId, 'CREAR', 'Cliente Registrado', @Usr, GETDATE());
         
         COMMIT TRANSACTION;
     END TRY
@@ -181,7 +249,7 @@ GO
 -- Procedimiento: sp_ConsultarProductosCliente
 -- Descripción: Consulta cuentas y operaciones de crédito de un cliente.
 -- ==========================================================
-CREATE PROCEDURE [dbo].[sp_ConsultarProductosCliente]
+CREATE OR ALTER PROCEDURE [dbo].[sp_ConsultarProductosCliente]
     @ClienteId INT
 AS
 BEGIN
@@ -197,7 +265,7 @@ BEGIN
         c.SaldoDisponible AS SaldoPrincipal,
         c.FechaApertura AS FechaCreacion
     FROM Cuentas c
-    INNER JOIN ProductosBancarios pb ON c.ProductoBancarioId = pb.ProductoBancarioId
+    INNER JOIN ProductosBancarios pb ON c.ProductoId = pb.ProductoId
     INNER JOIN TiposCuenta tc ON c.TipoCuentaId = tc.TipoCuentaId
     WHERE c.ClienteId = @ClienteId
 

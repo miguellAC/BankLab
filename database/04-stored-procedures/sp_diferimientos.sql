@@ -1,11 +1,11 @@
-USE [BankLabDB];
+﻿USE [BankLabDB];
 GO
 
 -- ==========================================================
 -- Procedimiento: sp_ConsultarClientesIncluidosDiferimiento
--- Descripción: Consulta los clientes incluidos en un diferimiento.
+-- DescripciÃ³n: Consulta los clientes incluidos en un diferimiento.
 -- ==========================================================
-CREATE PROCEDURE [dbo].[sp_ConsultarClientesIncluidosDiferimiento]
+CREATE OR ALTER PROCEDURE [dbo].[sp_ConsultarClientesIncluidosDiferimiento]
     @SolicitudDifId INT
 AS
 BEGIN
@@ -31,9 +31,9 @@ GO
 
 -- ==========================================================
 -- Procedimiento: sp_ConsultarClientesExcluidosDiferimiento
--- Descripción: Consulta los clientes excluidos en un diferimiento.
+-- DescripciÃ³n: Consulta los clientes excluidos en un diferimiento.
 -- ==========================================================
-CREATE PROCEDURE [dbo].[sp_ConsultarClientesExcluidosDiferimiento]
+CREATE OR ALTER PROCEDURE [dbo].[sp_ConsultarClientesExcluidosDiferimiento]
     @SolicitudDifId INT
 AS
 BEGIN
@@ -50,9 +50,9 @@ GO
 
 -- ==========================================================
 -- Procedimiento: sp_ConsultarOperacionesDiferidas
--- Descripción: Consulta las operaciones diferidas.
+-- DescripciÃ³n: Consulta las operaciones diferidas.
 -- ==========================================================
-CREATE PROCEDURE [dbo].[sp_ConsultarOperacionesDiferidas]
+CREATE OR ALTER PROCEDURE [dbo].[sp_ConsultarOperacionesDiferidas]
     @SolicitudDifId INT = NULL,
     @ClienteId INT = NULL
 AS
@@ -69,3 +69,4 @@ BEGIN
       AND 1=0; -- Placeholder
 END;
 GO
+

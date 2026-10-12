@@ -12,7 +12,7 @@ public class ApiEndpointTests : IClassFixture<WebApplicationFactory<Program>>
         _factory = factory;
     }
 
-    [Fact(Skip = "Requiere base de datos BankLabDB en ejecución")]
+    [Fact]
     [Trait("Category", "Integration")]
     public async Task GetClientes_ReturnsOk()
     {
@@ -26,7 +26,7 @@ public class ApiEndpointTests : IClassFixture<WebApplicationFactory<Program>>
         response.EnsureSuccessStatusCode();
     }
 
-    [Fact(Skip = "Requiere base de datos BankLabDB en ejecución")]
+    [Fact]
     [Trait("Category", "Integration")]
     public async Task GetCliente_InvalidId_Returns404()
     {
@@ -40,7 +40,7 @@ public class ApiEndpointTests : IClassFixture<WebApplicationFactory<Program>>
         Assert.Equal(System.Net.HttpStatusCode.NotFound, response.StatusCode);
     }
 
-    [Fact(Skip = "Requiere base de datos BankLabDB en ejecución")]
+    [Fact]
     [Trait("Category", "Integration")]
     public async Task GetCreditoByOperacion_ReturnsOk()
     {

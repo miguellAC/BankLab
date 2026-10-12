@@ -5,17 +5,21 @@
 SET NOCOUNT ON;
 GO
 
+USE BankLabDB;
+GO
+
 PRINT 'Poblando tablas de créditos...';
 
 -- 1500 SolicitudesCredito
+-- Schema: SolicitudId, ClienteId, ProductoCreditoId, EmpleadoId, MontoSolicitado, PlazoMeses, IngresosMensuales, Estado, FechaRadicacion, ObservacionesResolucion, UsuarioCreacion, FechaCreacion
 SET IDENTITY_INSERT SolicitudesCredito ON;
 WITH Nums AS (
     SELECT TOP (1500) ROW_NUMBER() OVER(ORDER BY (SELECT NULL)) AS N
     FROM master.dbo.spt_values a CROSS JOIN master.dbo.spt_values b
 )
-INSERT INTO SolicitudesCredito (Id, ClienteId, ProductoCreditoId, MontoSolicitado, PlazoMeses, Estado, FechaSolicitud, Observaciones)
+INSERT INTO SolicitudesCredito (SolicitudId, ClienteId, ProductoCreditoId, EmpleadoId, MontoSolicitado, PlazoMeses, IngresosMensuales, Estado, FechaRadicacion, ObservacionesResolucion)
 SELECT 
-    N AS Id,
+    N AS SolicitudId,
     (N % 1800) + 201 AS ClienteId,
     CASE 
         WHEN N % 100 < 60 THEN 1 -- Libre Inversión (60%)
@@ -23,6 +27,7 @@ SELECT
         WHEN N % 100 < 95 THEN 3 -- Vehículo (15%)
         ELSE 4 -- Rotativo (5%)
     END AS ProductoCreditoId,
+    (N % 29) + 1 AS EmpleadoId,
     CASE 
         WHEN N % 100 < 60 THEN 5000000 + (ABS(CHECKSUM(NEWID())) % 20000000) -- Libre Inversión
         WHEN N % 100 < 80 THEN 100000000 + (ABS(CHECKSUM(NEWID())) % 200000000) -- Hipotecario
@@ -35,6 +40,7 @@ SELECT
         WHEN N % 100 < 95 THEN 60 -- Vehículo
         ELSE 24 -- Rotativo
     END AS PlazoMeses,
+    4000000 + (ABS(CHECKSUM(NEWID())) % 8000000) AS IngresosMensuales,
     CASE 
         WHEN N % 100 < 40 THEN 'APROBADA'
         WHEN N % 100 < 65 THEN 'RECHAZADA'
@@ -43,30 +49,35 @@ SELECT
         WHEN N % 100 < 95 THEN 'DESISTIDA'
         ELSE 'VENCIDA'
     END AS Estado,
-    DATEADD(DAY, -(ABS(CHECKSUM(NEWID())) % 1000), GETDATE()) AS FechaSolicitud,
-    'Solicitud autogenerada' AS Observaciones
+    DATEADD(DAY, -(ABS(CHECKSUM(NEWID())) % 1000), GETDATE()) AS FechaRadicacion,
+    'Solicitud autogenerada' AS ObservacionesResolucion
 FROM Nums;
 SET IDENTITY_INSERT SolicitudesCredito OFF;
 
 -- 1000 OperacionesCredito (Approved solicitudes + migrated)
+-- Schema: OperacionId, NumeroOperacion, SolicitudId, ClienteId, ProductoCreditoId, MontoDesembolsado, TasaAnual, PlazoMeses, NumeroCuotas, FechaDesembolso, FechaVencimiento, Estado, SucursalId
 SET IDENTITY_INSERT OperacionesCredito ON;
 WITH Aprobadas AS (
-    SELECT Id, ClienteId, ProductoCreditoId, MontoSolicitado, PlazoMeses
+    SELECT SolicitudId, ClienteId, ProductoCreditoId, MontoSolicitado, PlazoMeses
     FROM SolicitudesCredito WHERE Estado = 'APROBADA'
 ),
 Nums AS (
     SELECT TOP (1000) ROW_NUMBER() OVER(ORDER BY (SELECT NULL)) AS N
     FROM master.dbo.spt_values a CROSS JOIN master.dbo.spt_values b
 )
-INSERT INTO OperacionesCredito (Id, SolicitudId, ClienteId, ProductoCreditoId, NumeroOperacion, MontoAprobado, SaldoCapital, Estado, FechaDesembolso)
+INSERT INTO OperacionesCredito (OperacionId, NumeroOperacion, SolicitudId, ClienteId, ProductoCreditoId, MontoDesembolsado, TasaAnual, PlazoMeses, NumeroCuotas, FechaDesembolso, FechaVencimiento, Estado, SucursalId)
 SELECT 
-    N.N AS Id,
-    A.Id AS SolicitudId, -- Will be NULL for some
+    N.N AS OperacionId,
+    'CRE' + RIGHT('0000000000' + CAST(N.N AS VARCHAR), 10) AS NumeroOperacion,
+    A.SolicitudId,
     ISNULL(A.ClienteId, (N.N % 1800) + 201) AS ClienteId,
     ISNULL(A.ProductoCreditoId, (N.N % 4) + 1) AS ProductoCreditoId,
-    'CRE' + RIGHT('0000000000' + CAST(N.N AS VARCHAR), 10) AS NumeroOperacion,
-    ISNULL(A.MontoSolicitado, 10000000) AS MontoAprobado,
-    ISNULL(A.MontoSolicitado, 10000000) AS SaldoCapital, -- Will update later based on cuotas
+    ISNULL(A.MontoSolicitado, 10000000) AS MontoDesembolsado,
+    P.TasaBaseAnual AS TasaAnual,
+    ISNULL(A.PlazoMeses, P.PlazoMinMeses + 12) AS PlazoMeses,
+    ISNULL(A.PlazoMeses, P.PlazoMinMeses + 12) AS NumeroCuotas,
+    DATEADD(DAY, -(ABS(CHECKSUM(NEWID())) % 1500), GETDATE()) AS FechaDesembolso,
+    DATEADD(MONTH, ISNULL(A.PlazoMeses, P.PlazoMinMeses + 12), DATEADD(DAY, -(ABS(CHECKSUM(NEWID())) % 1500), GETDATE())) AS FechaVencimiento,
     CASE 
         WHEN N.N % 100 < 70 THEN 'VIGENTE'
         WHEN N.N % 100 < 85 THEN 'MORA'
@@ -74,33 +85,32 @@ SELECT
         WHEN N.N % 100 < 98 THEN 'CASTIGADO'
         ELSE 'REESTRUCTURADO'
     END AS Estado,
-    DATEADD(DAY, -(ABS(CHECKSUM(NEWID())) % 1500), GETDATE()) AS FechaDesembolso
+    (N.N % 10) + 1 AS SucursalId
 FROM Nums N
-LEFT JOIN Aprobadas A ON N.N = A.Id;
+LEFT JOIN Aprobadas A ON N.N = A.SolicitudId
+JOIN ProductosCredito P ON P.ProductoCreditoId = ISNULL(A.ProductoCreditoId, (N.N % 4) + 1);
 SET IDENTITY_INSERT OperacionesCredito OFF;
 
 -- CondicionesCredito
-INSERT INTO CondicionesCredito (OperacionId, TasaInteres, PlazoMeses, DiaPago, CuotaCalculada)
+-- Schema: OperacionId, PeriodoGraciaMeses, TasaMoratoria, DiaCorte, FormaPago
+INSERT INTO CondicionesCredito (OperacionId, PeriodoGraciaMeses, TasaMoratoria, DiaCorte, FormaPago)
 SELECT 
-    O.Id AS OperacionId,
-    P.TasaAnual AS TasaInteres,
-    ISNULL(S.PlazoMeses, P.PlazoMinimoMeses + 12) AS PlazoMeses,
-    (O.Id % 28) + 1 AS DiaPago,
-    0 AS CuotaCalculada -- Will calculate
-FROM OperacionesCredito O
-JOIN ProductosCredito P ON O.ProductoCreditoId = P.Id
-LEFT JOIN SolicitudesCredito S ON O.SolicitudId = S.Id;
+    O.OperacionId,
+    0 AS PeriodoGraciaMeses,
+    O.TasaAnual * 1.5 AS TasaMoratoria,
+    (O.OperacionId % 28) + 1 AS DiaCorte,
+    'CAJA' AS FormaPago
+FROM OperacionesCredito O;
 
--- Calculation variables for Cuotas loop
-DECLARE @OpId INT, @Monto DECIMAL(18,2), @TasaAnual DECIMAL(5,2), @Plazo INT, @Estado VARCHAR(20), @FechaDesembolso DATE;
+-- Cuotas loop & Amortization
+DECLARE @OpId INT, @Monto DECIMAL(18,2), @TasaAnual DECIMAL(8,4), @Plazo INT, @Estado VARCHAR(20), @FechaDesembolso DATE;
 DECLARE @TasaMes DECIMAL(18,6), @CuotaFija DECIMAL(18,2);
 DECLARE @Mes INT, @CapitalPendiente DECIMAL(18,2), @InteresMes DECIMAL(18,2), @CapitalMes DECIMAL(18,2);
 DECLARE @FechaCuota DATE, @EstadoCuota VARCHAR(20);
 
 DECLARE cur_Operaciones CURSOR FOR 
-SELECT O.Id, O.MontoAprobado, C.TasaInteres, C.PlazoMeses, O.Estado, O.FechaDesembolso
-FROM OperacionesCredito O
-JOIN CondicionesCredito C ON O.Id = C.OperacionId;
+SELECT O.OperacionId, O.MontoDesembolsado, O.TasaAnual, O.PlazoMeses, O.Estado, O.FechaDesembolso
+FROM OperacionesCredito O;
 
 OPEN cur_Operaciones;
 FETCH NEXT FROM cur_Operaciones INTO @OpId, @Monto, @TasaAnual, @Plazo, @Estado, @FechaDesembolso;
@@ -109,13 +119,10 @@ WHILE @@FETCH_STATUS = 0
 BEGIN
     SET @TasaMes = (@TasaAnual / 100.0) / 12.0;
     
-    -- Cuota = P * r * (1+r)^n / ((1+r)^n - 1)
     IF @TasaMes > 0
         SET @CuotaFija = @Monto * @TasaMes * POWER(1 + @TasaMes, @Plazo) / (POWER(1 + @TasaMes, @Plazo) - 1);
     ELSE
         SET @CuotaFija = @Monto / @Plazo;
-
-    UPDATE CondicionesCredito SET CuotaCalculada = @CuotaFija WHERE OperacionId = @OpId;
 
     SET @CapitalPendiente = @Monto;
     SET @Mes = 1;
@@ -128,7 +135,6 @@ BEGIN
         
         SET @FechaCuota = DATEADD(MONTH, @Mes, @FechaDesembolso);
         
-        -- Determine Cuota status
         IF @Estado = 'CANCELADO'
             SET @EstadoCuota = 'PAGADA';
         ELSE IF @Estado = 'MORA' OR @Estado = 'CASTIGADO'
@@ -142,24 +148,34 @@ BEGIN
             ELSE SET @EstadoCuota = 'PENDIENTE';
         END
 
-        INSERT INTO Cuotas (OperacionId, NumeroCuota, FechaVencimiento, Capital, Intereses, Seguros, OtrosCargos, TotalCuota, Estado)
-        VALUES (@OpId, @Mes, @FechaCuota, @CapitalMes, @InteresMes, 0, 0, @CapitalMes + @InteresMes, @EstadoCuota);
+        -- Schema Cuotas: CuotaId, OperacionId, NumeroCuota, FechaVencimiento, CapitalCuota, InteresCuota, SeguroCuota, ValorCuota, SaldoCapital, CapitalPagado, InteresPagado, SeguroPagado, Estado, FechaPago
+        INSERT INTO Cuotas (OperacionId, NumeroCuota, FechaVencimiento, CapitalCuota, InteresCuota, SeguroCuota, ValorCuota, SaldoCapital, CapitalPagado, InteresPagado, SeguroPagado, Estado, FechaPago)
+        VALUES (
+            @OpId, @Mes, @FechaCuota, 
+            @CapitalMes, @InteresMes, 0, 
+            @CapitalMes + @InteresMes, 
+            @CapitalPendiente - @CapitalMes,
+            CASE WHEN @EstadoCuota = 'PAGADA' THEN @CapitalMes ELSE 0 END,
+            CASE WHEN @EstadoCuota = 'PAGADA' THEN @InteresMes ELSE 0 END,
+            0,
+            @EstadoCuota,
+            CASE WHEN @EstadoCuota = 'PAGADA' THEN @FechaCuota ELSE NULL END
+        );
 
         SET @CapitalPendiente = @CapitalPendiente - @CapitalMes;
         SET @Mes = @Mes + 1;
     END
 
-    -- Update SaldoOperacion
-    DECLARE @CapitalVencido DECIMAL(18,2) = ISNULL((SELECT SUM(Capital) FROM Cuotas WHERE OperacionId = @OpId AND Estado = 'VENCIDA'), 0);
-    DECLARE @CapitalPendienteCalc DECIMAL(18,2) = ISNULL((SELECT SUM(Capital) FROM Cuotas WHERE OperacionId = @OpId AND Estado IN ('PENDIENTE', 'VENCIDA')), 0);
-    DECLARE @InteresVencido DECIMAL(18,2) = ISNULL((SELECT SUM(Intereses) FROM Cuotas WHERE OperacionId = @OpId AND Estado = 'VENCIDA'), 0);
-    DECLARE @InteresMora DECIMAL(18,2) = CASE WHEN @CapitalVencido > 0 THEN @CapitalVencido * 0.05 ELSE 0 END;
-    DECLARE @DiasMora INT = CASE WHEN @CapitalVencido > 0 THEN DATEDIFF(DAY, (SELECT MIN(FechaVencimiento) FROM Cuotas WHERE OperacionId = @OpId AND Estado = 'VENCIDA'), GETDATE()) ELSE 0 END;
+    -- SaldosOperacion
+    -- Schema: OperacionId, SaldoCapitalVigente, SaldoCapitalVencido, SaldoInteresVigente, SaldoInteresVencido, SaldoSeguro, SaldoTotal, DiasEnMora, FechaUltimoPago, FechaActualizacion
+    DECLARE @CapVigente DECIMAL(18,2) = ISNULL((SELECT SUM(CapitalCuota) FROM Cuotas WHERE OperacionId = @OpId AND Estado = 'PENDIENTE'), 0);
+    DECLARE @CapVencido DECIMAL(18,2) = ISNULL((SELECT SUM(CapitalCuota) FROM Cuotas WHERE OperacionId = @OpId AND Estado = 'VENCIDA'), 0);
+    DECLARE @IntVigente DECIMAL(18,2) = ISNULL((SELECT SUM(InteresCuota) FROM Cuotas WHERE OperacionId = @OpId AND Estado = 'PENDIENTE'), 0);
+    DECLARE @IntVencido DECIMAL(18,2) = ISNULL((SELECT SUM(InteresCuota) FROM Cuotas WHERE OperacionId = @OpId AND Estado = 'VENCIDA'), 0);
+    DECLARE @DiasMora INT = CASE WHEN @CapVencido > 0 THEN DATEDIFF(DAY, (SELECT MIN(FechaVencimiento) FROM Cuotas WHERE OperacionId = @OpId AND Estado = 'VENCIDA'), GETDATE()) ELSE 0 END;
 
-    UPDATE OperacionesCredito SET SaldoCapital = @CapitalPendienteCalc WHERE Id = @OpId;
-
-    INSERT INTO SaldosOperacion (OperacionId, CapitalPendiente, CapitalVencido, InteresCorrientePendiente, InteresMora, OtrosConceptos, DiasMora, FechaUltimaActualizacion)
-    VALUES (@OpId, @CapitalPendienteCalc, @CapitalVencido, 0, @InteresMora, 0, @DiasMora, GETDATE());
+    INSERT INTO SaldosOperacion (OperacionId, SaldoCapitalVigente, SaldoCapitalVencido, SaldoInteresVigente, SaldoInteresVencido, SaldoSeguro, SaldoTotal, DiasEnMora, FechaUltimoPago, FechaActualizacion)
+    VALUES (@OpId, @CapVigente, @CapVencido, @IntVigente, @IntVencido, 0, @CapVigente + @CapVencido + @IntVigente + @IntVencido, @DiasMora, GETDATE(), GETDATE());
 
     FETCH NEXT FROM cur_Operaciones INTO @OpId, @Monto, @TasaAnual, @Plazo, @Estado, @FechaDesembolso;
 END
@@ -167,16 +183,18 @@ CLOSE cur_Operaciones;
 DEALLOCATE cur_Operaciones;
 
 -- Garantias
-INSERT INTO Garantias (OperacionId, TipoGarantiaId, Descripcion, ValorCobertura, FechaConstitucion, Estado)
+-- Schema: OperacionId, TipoGarantiaId, Descripcion, ValorGarantia, FechaConstitucion, FechaVencimiento, Estado
+INSERT INTO Garantias (OperacionId, TipoGarantiaId, Descripcion, ValorGarantia, FechaConstitucion, FechaVencimiento, Estado)
 SELECT 
-    O.Id AS OperacionId,
+    O.OperacionId,
     CASE WHEN P.Codigo = 'CRED-HIP' THEN 1 ELSE 2 END AS TipoGarantiaId,
-    'Garantía ' + P.Nombre + ' para operación ' + O.NumeroOperacion,
-    O.MontoAprobado * 1.5 AS ValorCobertura,
+    'Garantía ' + P.Nombre + ' para operación ' + O.NumeroOperacion AS Descripcion,
+    O.MontoDesembolsado * 1.5 AS ValorGarantia,
     O.FechaDesembolso,
-    'VIGENTE'
+    O.FechaVencimiento,
+    'VIGENTE' AS Estado
 FROM OperacionesCredito O
-JOIN ProductosCredito P ON O.ProductoCreditoId = P.Id
+JOIN ProductosCredito P ON O.ProductoCreditoId = P.ProductoCreditoId
 WHERE P.RequiereGarantia = 1 AND O.Estado IN ('VIGENTE', 'MORA', 'REESTRUCTURADO');
 
 PRINT 'Créditos y cuotas poblados exitosamente.';

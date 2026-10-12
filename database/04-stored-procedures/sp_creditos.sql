@@ -3,40 +3,62 @@ GO
 
 -- ==========================================================
 -- Procedimiento: sp_ConsultarOperacionCredito
--- Descripción: Consulta el detalle de una operación de crédito.
+-- Descripción: Consulta el detalle completo de una operación de crédito.
 -- ==========================================================
-CREATE PROCEDURE [dbo].[sp_ConsultarOperacionCredito]
+CREATE OR ALTER PROCEDURE [dbo].[sp_ConsultarOperacionCredito]
     @OperacionId INT = NULL,
     @NumeroOperacion VARCHAR(20) = NULL
 AS
 BEGIN
     SET NOCOUNT ON;
     
+    -- 1. Detalle de Operación
     SELECT 
         oc.OperacionId,
         oc.NumeroOperacion,
-        oc.MontoAprobado,
+        oc.SolicitudId,
+        oc.ClienteId,
+        (c.PrimerNombre + ' ' + ISNULL(c.SegundoNombre + ' ', '') + c.PrimerApellido + ISNULL(' ' + c.SegundoApellido, '')) AS NombreCliente,
+        oc.ProductoCreditoId,
+        pc.Nombre AS NombreProductoCredito,
+        oc.MontoDesembolsado,
+        oc.MontoDesembolsado AS MontoOriginal, -- Alias de compatibilidad
+        oc.TasaAnual,
+        oc.TasaAnual AS TasaInteres,         -- Alias de compatibilidad
+        oc.PlazoMeses,
+        oc.NumeroCuotas,
         oc.FechaDesembolso,
         oc.FechaVencimiento,
-        oc.Estado AS EstadoOperacion,
-        pc.Nombre AS ProductoCredito,
-        c.PrimerNombre + ' ' + c.PrimerApellido AS NombreCliente,
-        c.NumeroIdentificacion,
-        cc.TasaInteres,
-        cc.PlazoMeses,
-        cc.DiaPago,
+        oc.Estado,
+        oc.Estado AS EstadoOperacion,         -- Alias
+        oc.SucursalId,
+        s.Nombre AS NombreSucursal,
+        cc.TasaMoratoria,
+        cc.DiaCorte,
+        cc.FormaPago,
         so.SaldoTotal
     FROM OperacionesCredito oc
     INNER JOIN ProductosCredito pc ON oc.ProductoCreditoId = pc.ProductoCreditoId
     INNER JOIN Clientes c ON oc.ClienteId = c.ClienteId
-    INNER JOIN CondicionesCredito cc ON oc.OperacionId = cc.OperacionId
-    INNER JOIN SaldosOperacion so ON oc.OperacionId = so.OperacionId
+    LEFT JOIN Sucursales s ON oc.SucursalId = s.SucursalId
+    LEFT JOIN CondicionesCredito cc ON oc.OperacionId = cc.OperacionId
+    LEFT JOIN SaldosOperacion so ON oc.OperacionId = so.OperacionId
     WHERE (@OperacionId IS NOT NULL AND oc.OperacionId = @OperacionId)
        OR (@NumeroOperacion IS NOT NULL AND oc.NumeroOperacion = @NumeroOperacion);
 
-    -- Garantías
-    SELECT g.* 
-    FROM GarantiasCredito g
+    -- 2. Garantías de la Operación
+    SELECT 
+        g.GarantiaId,
+        g.OperacionId,
+        g.TipoGarantiaId,
+        tg.Nombre AS TipoGarantia,
+        g.Descripcion,
+        g.ValorGarantia,
+        g.FechaConstitucion,
+        g.FechaVencimiento,
+        g.Estado
+    FROM Garantias g
+    INNER JOIN TiposGarantia tg ON g.TipoGarantiaId = tg.TipoGarantiaId
     INNER JOIN OperacionesCredito oc ON g.OperacionId = oc.OperacionId
     WHERE (@OperacionId IS NOT NULL AND oc.OperacionId = @OperacionId)
        OR (@NumeroOperacion IS NOT NULL AND oc.NumeroOperacion = @NumeroOperacion);
@@ -45,21 +67,28 @@ GO
 
 -- ==========================================================
 -- Procedimiento: sp_ConsultarSaldosVigenteVencido
--- Descripción: Consulta los saldos vigentes y vencidos.
+-- Descripción: Consulta los saldos vigentes y vencidos de una operación.
 -- ==========================================================
-CREATE PROCEDURE [dbo].[sp_ConsultarSaldosVigenteVencido]
+CREATE OR ALTER PROCEDURE [dbo].[sp_ConsultarSaldosVigenteVencido]
     @OperacionId INT
 AS
 BEGIN
     SET NOCOUNT ON;
     
     SELECT 
+        so.SaldoOperacionId,
+        so.OperacionId,
         so.SaldoCapitalVigente,
+        so.SaldoCapitalVigente AS SaldoVigente, -- Alias de compatibilidad
         so.SaldoCapitalVencido,
+        so.SaldoCapitalVencido AS SaldoVencido, -- Alias de compatibilidad
         so.SaldoInteresVigente,
         so.SaldoInteresVencido,
+        so.SaldoSeguro,
         so.SaldoTotal,
-        so.DiasEnMora
+        so.DiasEnMora,
+        so.FechaUltimoPago,
+        so.FechaActualizacion
     FROM SaldosOperacion so
     WHERE so.OperacionId = @OperacionId;
 END;
@@ -67,9 +96,9 @@ GO
 
 -- ==========================================================
 -- Procedimiento: sp_ConsultarCuotasOperacion
--- Descripción: Consulta cuotas de una operación.
+-- Descripción: Consulta el plan de cuotas de una operación.
 -- ==========================================================
-CREATE PROCEDURE [dbo].[sp_ConsultarCuotasOperacion]
+CREATE OR ALTER PROCEDURE [dbo].[sp_ConsultarCuotasOperacion]
     @OperacionId INT,
     @SoloVencidas BIT = 0,
     @SoloPendientes BIT = 0
@@ -78,51 +107,65 @@ BEGIN
     SET NOCOUNT ON;
     
     SELECT 
-        NumeroCuota,
-        FechaVencimiento,
-        CapitalEsperado,
-        InteresEsperado,
-        SeguroEsperado,
-        TotalCuota,
-        CapitalPagado,
-        InteresPagado,
-        SeguroPagado,
-        TotalPagado,
-        Estado,
-        DiasAtraso
-    FROM Cuotas
-    WHERE OperacionId = @OperacionId
-      AND (@SoloVencidas = 0 OR Estado = 'VENCIDA')
-      AND (@SoloPendientes = 0 OR Estado IN ('PENDIENTE', 'PARCIAL', 'VENCIDA'))
-    ORDER BY NumeroCuota;
+        c.CuotaId,
+        c.OperacionId,
+        c.NumeroCuota,
+        c.FechaVencimiento,
+        c.CapitalCuota,
+        c.CapitalCuota AS Capital, -- Alias
+        c.InteresCuota,
+        c.InteresCuota AS Interes, -- Alias
+        c.SeguroCuota,
+        c.ValorCuota,
+        c.SaldoCapital,
+        c.CapitalPagado,
+        c.InteresPagado,
+        c.SeguroPagado,
+        c.Estado,
+        c.FechaPago
+    FROM Cuotas c
+    WHERE c.OperacionId = @OperacionId
+      AND (@SoloVencidas = 0 OR c.Estado = 'VENCIDA')
+      AND (@SoloPendientes = 0 OR c.Estado IN ('PENDIENTE', 'PARCIAL', 'VENCIDA'))
+    ORDER BY c.NumeroCuota ASC;
 END;
 GO
 
 -- ==========================================================
 -- Procedimiento: sp_ConsultarCuotasPendientesVencidas
--- Descripción: Consulta todas las cuotas pendientes o vencidas (opcionalmente por cliente).
+-- Descripción: Consulta cuotas vencidas o pendientes de clientes.
 -- ==========================================================
-CREATE PROCEDURE [dbo].[sp_ConsultarCuotasPendientesVencidas]
+CREATE OR ALTER PROCEDURE [dbo].[sp_ConsultarCuotasPendientesVencidas]
     @ClienteId INT = NULL
 AS
 BEGIN
     SET NOCOUNT ON;
     
     SELECT 
-        cu.CuotaId,
-        cu.NumeroCuota,
+        c.CuotaId,
+        c.OperacionId,
         oc.NumeroOperacion,
-        pc.Nombre AS ProductoCredito,
-        c.PrimerNombre + ' ' + c.PrimerApellido AS Cliente,
-        cu.FechaVencimiento,
-        cu.TotalCuota - cu.TotalPagado AS SaldoPendienteCuota,
-        cu.Estado
-    FROM Cuotas cu
-    INNER JOIN OperacionesCredito oc ON cu.OperacionId = oc.OperacionId
-    INNER JOIN ProductosCredito pc ON oc.ProductoCreditoId = pc.ProductoCreditoId
-    INNER JOIN Clientes c ON oc.ClienteId = c.ClienteId
-    WHERE cu.Estado IN ('PENDIENTE', 'PARCIAL', 'VENCIDA')
-      AND (@ClienteId IS NULL OR c.ClienteId = @ClienteId)
-    ORDER BY cu.FechaVencimiento ASC;
+        oc.ClienteId,
+        (cli.PrimerNombre + ' ' + cli.PrimerApellido) AS NombreCliente,
+        c.NumeroCuota,
+        c.FechaVencimiento,
+        c.CapitalCuota,
+        c.CapitalCuota AS Capital,
+        c.InteresCuota,
+        c.InteresCuota AS Interes,
+        c.SeguroCuota,
+        c.ValorCuota,
+        c.SaldoCapital,
+        c.CapitalPagado,
+        c.InteresPagado,
+        c.SeguroPagado,
+        c.Estado,
+        c.FechaPago
+    FROM Cuotas c
+    INNER JOIN OperacionesCredito oc ON c.OperacionId = oc.OperacionId
+    INNER JOIN Clientes cli ON oc.ClienteId = cli.ClienteId
+    WHERE (@ClienteId IS NULL OR oc.ClienteId = @ClienteId)
+      AND c.Estado IN ('PENDIENTE', 'PARCIAL', 'VENCIDA')
+    ORDER BY c.FechaVencimiento ASC;
 END;
 GO
