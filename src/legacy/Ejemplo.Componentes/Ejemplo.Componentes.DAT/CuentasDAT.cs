@@ -30,8 +30,18 @@ namespace Ejemplo.Componentes.DAT
                                 CuentaId = ConexionHelper.LeerValor<int>(reader, "CuentaId"),
                                 ClienteId = ConexionHelper.LeerValor<int>(reader, "ClienteId"),
                                 NumeroCuenta = ConexionHelper.LeerValor<string>(reader, "NumeroCuenta"),
-                                TipoCuenta = ConexionHelper.LeerValor<string>(reader, "TipoCuenta"),
-                                Estado = ConexionHelper.LeerValor<string>(reader, "Estado")
+                                NombreCliente = ConexionHelper.LeerValor<string>(reader, "NombreCliente"),
+                                ProductoId = ConexionHelper.LeerValor<int>(reader, "ProductoId"),
+                                NombreProducto = ConexionHelper.LeerValor<string>(reader, "NombreProducto"),
+                                TipoCuentaId = ConexionHelper.LeerValor<int>(reader, "TipoCuentaId"),
+                                NombreTipoCuenta = ConexionHelper.LeerValor<string>(reader, "NombreTipoCuenta"),
+                                SucursalId = ConexionHelper.LeerValor<int>(reader, "SucursalId"),
+                                NombreSucursal = ConexionHelper.LeerValor<string>(reader, "NombreSucursal"),
+                                Saldo = ConexionHelper.LeerValor<decimal>(reader, "Saldo"),
+                                SaldoDisponible = ConexionHelper.LeerValor<decimal>(reader, "SaldoDisponible"),
+                                Estado = ConexionHelper.LeerValor<string>(reader, "Estado"),
+                                FechaApertura = ConexionHelper.LeerValor<DateTime>(reader, "FechaApertura"),
+                                Moneda = ConexionHelper.LeerValor<string>(reader, "Moneda")
                             });
                         }
                     }
@@ -75,16 +85,24 @@ namespace Ejemplo.Componentes.DAT
                         
                         if (reader.NextResult())
                         {
-                            result.Data = new List<MovimientoDTO>();
+                            result.Items = new List<MovimientoDTO>();
                             while (reader.Read())
                             {
-                                result.Data.Add(new MovimientoDTO
+                                result.Items.Add(new MovimientoDTO
                                 {
-                                    MovimientoId = ConexionHelper.LeerValor<int>(reader, "MovimientoId"),
+                                    MovimientoId = ConexionHelper.LeerValor<long>(reader, "MovimientoId"),
                                     CuentaId = ConexionHelper.LeerValor<int>(reader, "CuentaId"),
-                                    Fecha = ConexionHelper.LeerValor<DateTime>(reader, "Fecha"),
+                                    TipoTransaccionId = ConexionHelper.LeerValor<int>(reader, "TipoTransaccionId"),
+                                    NombreTipoTransaccion = ConexionHelper.LeerValor<string>(reader, "NombreTipoTransaccion"),
+                                    Naturaleza = ConexionHelper.LeerValor<char>(reader, "Naturaleza"),
                                     Monto = ConexionHelper.LeerValor<decimal>(reader, "Monto"),
-                                    TipoMovimiento = ConexionHelper.LeerValor<string>(reader, "TipoMovimiento")
+                                    SaldoAnterior = ConexionHelper.LeerValor<decimal>(reader, "SaldoAnterior"),
+                                    SaldoPosterior = ConexionHelper.LeerValor<decimal>(reader, "SaldoPosterior"),
+                                    Descripcion = ConexionHelper.LeerValor<string>(reader, "Descripcion"),
+                                    Referencia = ConexionHelper.LeerValor<string>(reader, "Referencia"),
+                                    CanalOrigen = ConexionHelper.LeerValor<string>(reader, "CanalOrigen"),
+                                    FechaMovimiento = ConexionHelper.LeerValor<DateTime>(reader, "FechaMovimiento"),
+                                    FechaValor = ConexionHelper.LeerValor<DateTime>(reader, "FechaValor")
                                 });
                             }
                         }
@@ -120,9 +138,12 @@ namespace Ejemplo.Componentes.DAT
                         {
                             return new SaldoDTO
                             {
-                                CuentaId = cuentaId,
+                                CuentaId = ConexionHelper.LeerValor<int>(reader, "CuentaId"),
+                                NumeroCuenta = ConexionHelper.LeerValor<string>(reader, "NumeroCuenta"),
+                                Saldo = ConexionHelper.LeerValor<decimal>(reader, "Saldo"),
                                 SaldoDisponible = ConexionHelper.LeerValor<decimal>(reader, "SaldoDisponible"),
-                                SaldoContable = ConexionHelper.LeerValor<decimal>(reader, "SaldoContable")
+                                Estado = ConexionHelper.LeerValor<string>(reader, "Estado"),
+                                FechaUltimoMovimiento = ConexionHelper.LeerFechaNullable(reader, "FechaUltimoMovimiento")
                             };
                         }
                     }

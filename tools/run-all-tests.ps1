@@ -9,7 +9,8 @@ if (!(Get-Command dotnet -ErrorAction SilentlyContinue)) {
 }
 
 # 1. Run tests for Modern API (.NET 8)
-$modernSolution = "..\BankLab.Modern.sln"
+$repoRoot = (Resolve-Path (Join-Path $PSScriptRoot "..")).Path
+$modernSolution = Join-Path $repoRoot "src\modern\BankLab.Modern\BankLab.Modern.sln"
 if (Test-Path $modernSolution) {
     Write-Host "Ejecutando pruebas para Modern API..." -ForegroundColor Yellow
     dotnet test $modernSolution --logger "console;verbosity=detailed"
@@ -18,7 +19,7 @@ if (Test-Path $modernSolution) {
 }
 
 # 2. Run tests for Legacy (might require vstest.console.exe if dotnet test doesn't pick up .NET 4.8)
-$legacySolution = "..\Ejemplo.Componentes.sln"
+$legacySolution = Join-Path $repoRoot "tests\Ejemplo.Tests.sln"
 if (Test-Path $legacySolution) {
     Write-Host "Ejecutando pruebas para Legacy (intentando con dotnet test)..." -ForegroundColor Yellow
     dotnet test $legacySolution

@@ -53,7 +53,7 @@
       <Project>{A1111111-1111-1111-1111-111111111111}</Project>
       <Name>Ejemplo.GUI.Comun</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\..\Ejemplo.WCFServicios\Ejemplo.WCF.Agentes\Ejemplo.WCF.Agentes.csproj">
+    <ProjectReference Include="..\..\Ejemplo.WCFServicios\Ejemplo.WCF.Agentes\Ejemplo.WCF.Agentes.csproj">
       <Project>{F5555555-5555-5555-5555-555555555555}</Project>
       <Name>Ejemplo.WCF.Agentes</Name>
     </ProjectReference>

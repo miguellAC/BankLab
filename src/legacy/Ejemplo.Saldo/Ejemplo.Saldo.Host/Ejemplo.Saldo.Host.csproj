@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{5A1D0000-0000-4000-8000-000000000001}</ProjectGuid>
+    <OutputType>Exe</OutputType>
+    <RootNamespace>Ejemplo.Saldo.Host</RootNamespace>
+    <AssemblyName>Ejemplo.Saldo.Host</AssemblyName>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <Deterministic>true</Deterministic>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Configuration" />
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.ServiceModel" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Program.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="App.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\Ejemplo.WCFServicios\Ejemplo.WCF.Contratos\Ejemplo.WCF.Contratos.csproj">
+      <Name>Ejemplo.WCF.Contratos</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Ejemplo.WCFServicios\Ejemplo.WCF.Servicios\Ejemplo.WCF.Servicios.csproj">
+      <Name>Ejemplo.WCF.Servicios</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Ejemplo.Comun\Ejemplo.Comun.DTOs\Ejemplo.Comun.DTOs.csproj">
+      <Name>Ejemplo.Comun.DTOs</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Ejemplo.Comun\Ejemplo.Comun.Utilidades\Ejemplo.Comun.Utilidades.csproj">
+      <Name>Ejemplo.Comun.Utilidades</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Ejemplo.Comun\Ejemplo.Comun.Enumeraciones\Ejemplo.Comun.Enumeraciones.csproj">
+      <Name>Ejemplo.Comun.Enumeraciones</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Ejemplo.Componentes\Ejemplo.Componentes.BLL\Ejemplo.Componentes.BLL.csproj">
+      <Name>Ejemplo.Componentes.BLL</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Ejemplo.Componentes\Ejemplo.Componentes.DAS\Ejemplo.Componentes.DAS.csproj">
+      <Name>Ejemplo.Componentes.DAS</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Ejemplo.Componentes\Ejemplo.Componentes.DAL\Ejemplo.Componentes.DAL.csproj">
+      <Name>Ejemplo.Componentes.DAL</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Ejemplo.Componentes\Ejemplo.Componentes.DAT\Ejemplo.Componentes.DAT.csproj">
+      <Name>Ejemplo.Componentes.DAT</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>

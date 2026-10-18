@@ -13,6 +13,23 @@
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
   </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -20,6 +37,8 @@
     <Reference Include="System.Drawing" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.ServiceModel" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="FrmConsultaCuentas.cs">
@@ -46,6 +65,15 @@
     <ProjectReference Include="..\Ejemplo.GUI.Comun\Ejemplo.GUI.Comun.csproj">
       <Project>{A1111111-1111-1111-1111-111111111111}</Project>
       <Name>Ejemplo.GUI.Comun</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Ejemplo.Comun\Ejemplo.Comun.DTOs\Ejemplo.Comun.DTOs.csproj">
+      <Name>Ejemplo.Comun.DTOs</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Ejemplo.WCFServicios\Ejemplo.WCF.Contratos\Ejemplo.WCF.Contratos.csproj">
+      <Name>Ejemplo.WCF.Contratos</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Ejemplo.WCFServicios\Ejemplo.WCF.Agentes\Ejemplo.WCF.Agentes.csproj">
+      <Name>Ejemplo.WCF.Agentes</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

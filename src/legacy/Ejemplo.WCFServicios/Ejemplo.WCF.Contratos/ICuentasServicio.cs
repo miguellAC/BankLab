@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.ServiceModel;
 using Ejemplo.Comun.DTOs.Cuentas;
@@ -12,9 +13,9 @@ namespace Ejemplo.WCF.Contratos
         RespuestaOperacion<List<CuentaDTO>> ConsultarCuentasCliente(int clienteId);
 
         [OperationContract]
-        RespuestaOperacion<List<MovimientoCuentaDTO>> ConsultarMovimientosCuenta(int cuentaId, int pageNumber, int pageSize);
+        RespuestaOperacion<PaginacionDTO<MovimientoDTO>> ConsultarMovimientosCuenta(int cuentaId, DateTime? fechaDesde, DateTime? fechaHasta, int pageNumber, int pageSize);
 
         [OperationContract]
-        RespuestaOperacion<decimal> ConsultarSaldoCuenta(int cuentaId);
+        RespuestaOperacion<SaldoDTO> ConsultarSaldoCuenta(int cuentaId);
     }
 }

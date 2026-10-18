@@ -7,11 +7,44 @@ namespace Ejemplo.Componentes.DAT
 {
     public static class ConexionHelper
     {
+        /// <summary>Nombre de la cadena en connectionStrings (App.config del proceso que aloja el DAT).</summary>
+        public const string NombreCadenaConexion = "BankLabDB";
+
+        /// <summary>Variable de entorno opcional que tiene prioridad sobre el archivo de configuracion.</summary>
+        public const string VariableEntornoCadena = "BANKLAB_CONNECTION_STRING";
+
+        private const string MarcadorPlantilla = "COMPLETAR";
+
+        /// <summary>
+        /// Crea la conexion usando la cadena de configuracion (sin credenciales en el codigo).
+        /// Orden: variable de entorno BANKLAB_CONNECTION_STRING, luego connectionStrings["BankLabDB"].
+        /// </summary>
         public static SqlConnection ObtenerConexion()
         {
-            // Placeholder: ConfigurationManager normally used, matching prompt requirement
-            string connString = "Server=localhost;Database=BankLabDB;User Id=sa;Password=BankLab2024!;TrustServerCertificate=True;";
-            return new SqlConnection(connString);
+            return new SqlConnection(ObtenerCadenaConexion());
+        }
+
+        public static string ObtenerCadenaConexion()
+        {
+            string cadena = Environment.GetEnvironmentVariable(VariableEntornoCadena);
+
+            if (string.IsNullOrWhiteSpace(cadena))
+            {
+                ConnectionStringSettings cfg = ConfigurationManager.ConnectionStrings[NombreCadenaConexion];
+                cadena = cfg != null ? cfg.ConnectionString : null;
+            }
+
+            if (string.IsNullOrWhiteSpace(cadena))
+                throw new InvalidOperationException(
+                    "No se encontro la cadena de conexion '" + NombreCadenaConexion + "'. Defina connectionStrings en el " +
+                    "App.config del proceso o la variable de entorno " + VariableEntornoCadena + ".");
+
+            if (cadena.IndexOf(MarcadorPlantilla, StringComparison.OrdinalIgnoreCase) >= 0)
+                throw new InvalidOperationException(
+                    "La cadena de conexion '" + NombreCadenaConexion + "' aun es la plantilla. Reemplace el marcador " +
+                    MarcadorPlantilla + " por la contrasena local o use la variable de entorno " + VariableEntornoCadena + ".");
+
+            return cadena;
         }
 
         public static SqlCommand CrearComandoSP(SqlConnection conexion, string spName)

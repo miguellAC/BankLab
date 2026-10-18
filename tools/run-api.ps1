@@ -1,6 +1,8 @@
 # Script to build and run the .NET 8 API
 
-$projectPath = "..\BankLab.Modern\BankLab.Modern.API\BankLab.Modern.API.csproj"
+# Ruta relativa a la ubicacion del script (no al directorio actual).
+$repoRoot = (Resolve-Path (Join-Path $PSScriptRoot "..")).Path
+$projectPath = Join-Path $repoRoot "src\modern\BankLab.Modern\BankLab.Modern.API\BankLab.Modern.API.csproj"
 
 Write-Host "Iniciando proceso para API Moderna (.NET 8)..." -ForegroundColor Cyan
 
@@ -14,7 +16,7 @@ if (!(Get-Command dotnet -ErrorAction SilentlyContinue)) {
 if (!(Test-Path $projectPath)) {
     Write-Host "WARNING: No se encuentra $projectPath. Asegúrese de que la estructura de carpetas coincida." -ForegroundColor Yellow
     # Fallback, just try to run in the presumed modern folder
-    $apiFolder = "..\BankLab.Modern.API"
+    $apiFolder = Join-Path $repoRoot "src\modern\BankLab.Modern\BankLab.Modern.API"
     if (Test-Path $apiFolder) {
         Set-Location $apiFolder
         dotnet run

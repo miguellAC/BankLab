@@ -9,54 +9,55 @@ using Ejemplo.Comun.Utilidades;
 
 namespace Ejemplo.WCF.Servicios
 {
+    /// <summary>
+    /// Servicio WCF de cuentas. La BLL ya devuelve RespuestaOperacion&lt;T&gt;, por lo que el servicio
+    /// la reenvia tal cual (sin envolverla por segunda vez) y solo captura excepciones inesperadas.
+    /// </summary>
     [ServiceBehavior(InstanceContextMode = InstanceContextMode.PerCall, ConcurrencyMode = ConcurrencyMode.Multiple)]
     public class CuentasServicio : ICuentasServicio
     {
+        private const string MensajeErrorInterno = "Error interno del servicio. Consulte el registro del servidor.";
+
         public RespuestaOperacion<List<CuentaDTO>> ConsultarCuentasCliente(int clienteId)
         {
             try
             {
-                LogUtil.Info($"ConsultarCuentasCliente: {clienteId}");
-                var bll = new CuentasBLL();
-                var result = bll.ConsultarCuentasCliente(clienteId);
-                return RespuestaOperacion<List<CuentaDTO>>.CrearExito(result);
+                LogHelper.Informacion($"ConsultarCuentasCliente: {clienteId}");
+                return new CuentasBLL().ConsultarCuentasCliente(clienteId);
             }
             catch (Exception ex)
             {
-                LogUtil.Error(ex);
-                return RespuestaOperacion<List<CuentaDTO>>.CrearError(ex.Message);
+                LogHelper.Error("ConsultarCuentasCliente (servicio)", ex);
+                return RespuestaOperacion<List<CuentaDTO>>.CrearError(MensajeErrorInterno, "ERR_INTERNO");
             }
         }
 
-        public RespuestaOperacion<List<MovimientoCuentaDTO>> ConsultarMovimientosCuenta(int cuentaId, int pageNumber, int pageSize)
+        public RespuestaOperacion<PaginacionDTO<MovimientoDTO>> ConsultarMovimientosCuenta(
+            int cuentaId, DateTime? fechaDesde, DateTime? fechaHasta, int pageNumber, int pageSize)
         {
             try
             {
-                LogUtil.Info($"ConsultarMovimientosCuenta: {cuentaId}");
-                var bll = new CuentasBLL();
-                var result = bll.ConsultarMovimientosCuenta(cuentaId, pageNumber, pageSize);
-                return RespuestaOperacion<List<MovimientoCuentaDTO>>.CrearExito(result);
+                LogHelper.Informacion($"ConsultarMovimientosCuenta: {cuentaId}");
+                return new CuentasBLL().ConsultarMovimientosCuenta(cuentaId, fechaDesde, fechaHasta, pageNumber, pageSize);
             }
             catch (Exception ex)
             {
-                LogUtil.Error(ex);
-                return RespuestaOperacion<List<MovimientoCuentaDTO>>.CrearError(ex.Message);
+                LogHelper.Error("ConsultarMovimientosCuenta (servicio)", ex);
+                return RespuestaOperacion<PaginacionDTO<MovimientoDTO>>.CrearError(MensajeErrorInterno, "ERR_INTERNO");
             }
         }
 
-        public RespuestaOperacion<decimal> ConsultarSaldoCuenta(int cuentaId)
+        public RespuestaOperacion<SaldoDTO> ConsultarSaldoCuenta(int cuentaId)
         {
             try
             {
-                LogUtil.Info($"ConsultarSaldoCuenta: {cuentaId}");
-                var bll = new CuentasBLL();
-                var result = bll.ConsultarSaldoCuenta(cuentaId);
-                return RespuestaOperacion<decimal>.CrearExito(result);
+                LogHelper.Informacion($"ConsultarSaldoCuenta: {cuentaId}");
+                return new CuentasBLL().ConsultarSaldoCuenta(cuentaId);
             }
             catch (Exception ex)
             {
-                LogUtil.Error(ex);
-                return RespuestaOperacion<decimal>.CrearError(ex.Message);
+                LogHelper.Error("ConsultarSaldoCuenta (servicio)", ex);
+                return RespuestaOperacion<SaldoDTO>.CrearError(MensajeErrorInterno, "ERR_INTERNO");
             }
         }
     }

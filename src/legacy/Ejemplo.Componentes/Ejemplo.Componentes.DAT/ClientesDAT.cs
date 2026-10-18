@@ -103,10 +103,10 @@ namespace Ejemplo.Componentes.DAT
                         
                         if (reader.NextResult())
                         {
-                            result.Data = new System.Collections.Generic.List<ClienteDTO>();
+                            result.Items = new System.Collections.Generic.List<ClienteDTO>();
                             while (reader.Read())
                             {
-                                result.Data.Add(MapearCliente(reader));
+                                result.Items.Add(MapearCliente(reader));
                             }
                         }
                     }

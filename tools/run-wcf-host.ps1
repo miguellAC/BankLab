@@ -1,8 +1,11 @@
 # Script to build and run the WCF Host Console Application
 
-$solutionPath = "..\Ejemplo.WCFServicios.sln"
-$projectPath = "..\Ejemplo.WCF.Host\Ejemplo.WCF.Host.csproj"
-$exePath = "..\Ejemplo.WCF.Host\bin\Debug\Ejemplo.WCF.Host.exe"
+# Rutas relativas a la ubicacion del script (no al directorio actual).
+$repoRoot = (Resolve-Path (Join-Path $PSScriptRoot "..")).Path
+$wcfRoot = Join-Path $repoRoot "src\legacy\Ejemplo.WCFServicios"
+$solutionPath = Join-Path $wcfRoot "Ejemplo.WCFServicios.sln"
+$projectPath = Join-Path $wcfRoot "Ejemplo.WCF.Host\Ejemplo.WCF.Host.csproj"
+$exePath = Join-Path $wcfRoot "Ejemplo.WCF.Host\bin\Debug\Ejemplo.WCF.Host.exe"
 
 Write-Host "Iniciando proceso para WCF Host..." -ForegroundColor Cyan
 

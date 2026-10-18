@@ -34,7 +34,7 @@ namespace Ejemplo.GUI.Cuentas
             this.lblCuenta.Name = "lblCuenta";
             this.lblCuenta.Size = new System.Drawing.Size(113, 15);
             this.lblCuenta.TabIndex = 1;
-            this.lblCuenta.Text = "Número de Cuenta:";
+            this.lblCuenta.Text = "Id de Cuenta:";
             // 
             // txtCuenta
             // 
