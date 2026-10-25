@@ -14,7 +14,7 @@ namespace Ejemplo.Comun.DTOs.Comunes
         public int PageSize { get; set; }
         [DataMember]
         public int TotalRecords { get; set; }
-        [DataMember]
+        // Propiedad calculada de solo lectura: un [DataMember] sin set no es serializable (InvalidDataContractException).
         public int TotalPages => (int)Math.Ceiling((double)TotalRecords / (PageSize > 0 ? PageSize : 1));
         [DataMember]
         public List<T> Items { get; set; }
