@@ -15,15 +15,15 @@ namespace Ejemplo.Componentes.BLL
             try
             {
                 if (loteId <= 0)
-                    return RespuestaOperacion<bool>.Error("ID de lote inválido.");
+                    return RespuestaOperacion<bool>.CrearError("ID de lote inválido.");
 
                 _importacionDAS.ProcesarLoteCompleto(loteId, usuario);
-                return RespuestaOperacion<bool>.Exito(true);
+                return RespuestaOperacion<bool>.CrearExitosa(true);
             }
             catch (Exception ex)
             {
                 LogHelper.Error("ProcesarLoteCompleto BLL", ex);
-                return RespuestaOperacion<bool>.Error(ex.Message);
+                return RespuestaOperacion<bool>.CrearError(ex.Message);
             }
         }
 
@@ -33,13 +33,13 @@ namespace Ejemplo.Componentes.BLL
             {
                 var estado = _importacionDAS.ConsultarEstadoLote(loteId);
                 return estado != null 
-                    ? RespuestaOperacion<LoteImportacionDTO>.Exito(estado)
-                    : RespuestaOperacion<LoteImportacionDTO>.Error("Lote no encontrado.");
+                    ? RespuestaOperacion<LoteImportacionDTO>.CrearExitosa(estado)
+                    : RespuestaOperacion<LoteImportacionDTO>.CrearError("Lote no encontrado.");
             }
             catch (Exception ex)
             {
                 LogHelper.Error("ConsultarEstadoLote BLL", ex);
-                return RespuestaOperacion<LoteImportacionDTO>.Error("Error interno.");
+                return RespuestaOperacion<LoteImportacionDTO>.CrearError("Error interno.");
             }
         }
     }

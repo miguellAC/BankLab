@@ -15,12 +15,12 @@ namespace Ejemplo.Componentes.BLL
             try
             {
                 _auditoriaDAS.RegistrarAuditoria(tipoEntidad, entidadId, accion, valorAnt, valorNuevo, ip, equipo, usuario);
-                return RespuestaOperacion<bool>.Exito(true);
+                return RespuestaOperacion<bool>.CrearExitosa(true);
             }
             catch (Exception ex)
             {
                 LogHelper.Error("RegistrarAuditoria BLL", ex);
-                return RespuestaOperacion<bool>.Error("Error al registrar auditoria.");
+                return RespuestaOperacion<bool>.CrearError("Error al registrar auditoria.");
             }
         }
 
@@ -29,12 +29,12 @@ namespace Ejemplo.Componentes.BLL
             try
             {
                 var dt = _auditoriaDAS.ConsultarAuditoriaEntidad(tipoEntidad, entidadId, desde, hasta);
-                return RespuestaOperacion<DataTable>.Exito(dt);
+                return RespuestaOperacion<DataTable>.CrearExitosa(dt);
             }
             catch (Exception ex)
             {
                 LogHelper.Error("ConsultarAuditoriaEntidad BLL", ex);
-                return RespuestaOperacion<DataTable>.Error("Error interno.");
+                return RespuestaOperacion<DataTable>.CrearError("Error interno.");
             }
         }
     }

@@ -19,10 +19,6 @@
     <SliceSaldoExcluido Include="PagosDAT.cs" />
     <Compile Remove="CarteraDAT.cs" />
     <SliceSaldoExcluido Include="CarteraDAT.cs" />
-    <Compile Remove="ImportacionDAT.cs" />
-    <SliceSaldoExcluido Include="ImportacionDAT.cs" />
-    <Compile Remove="AuditoriaDAT.cs" />
-    <SliceSaldoExcluido Include="AuditoriaDAT.cs" />
   </ItemGroup>
   <ItemGroup Condition="'$(SliceSaldo)' == 'true' and '$(MSBuildProjectName)' == 'Ejemplo.Componentes.DAL'">
     <Compile Remove="ClientesDAL.cs" />
@@ -33,10 +29,6 @@
     <SliceSaldoExcluido Include="PagosDAL.cs" />
     <Compile Remove="CarteraDAL.cs" />
     <SliceSaldoExcluido Include="CarteraDAL.cs" />
-    <Compile Remove="ImportacionDAL.cs" />
-    <SliceSaldoExcluido Include="ImportacionDAL.cs" />
-    <Compile Remove="AuditoriaDAL.cs" />
-    <SliceSaldoExcluido Include="AuditoriaDAL.cs" />
   </ItemGroup>
   <ItemGroup Condition="'$(SliceSaldo)' == 'true' and '$(MSBuildProjectName)' == 'Ejemplo.Componentes.DAS'">
     <Compile Remove="ClientesDAS.cs" />
@@ -47,10 +39,6 @@
     <SliceSaldoExcluido Include="PagosDAS.cs" />
     <Compile Remove="CarteraDAS.cs" />
     <SliceSaldoExcluido Include="CarteraDAS.cs" />
-    <Compile Remove="ImportacionDAS.cs" />
-    <SliceSaldoExcluido Include="ImportacionDAS.cs" />
-    <Compile Remove="AuditoriaDAS.cs" />
-    <SliceSaldoExcluido Include="AuditoriaDAS.cs" />
   </ItemGroup>
   <ItemGroup Condition="'$(SliceSaldo)' == 'true' and '$(MSBuildProjectName)' == 'Ejemplo.Componentes.BLL'">
     <Compile Remove="ClientesBLL.cs" />
@@ -61,10 +49,6 @@
     <SliceSaldoExcluido Include="PagosBLL.cs" />
     <Compile Remove="CarteraBLL.cs" />
     <SliceSaldoExcluido Include="CarteraBLL.cs" />
-    <Compile Remove="ImportacionBLL.cs" />
-    <SliceSaldoExcluido Include="ImportacionBLL.cs" />
-    <Compile Remove="AuditoriaBLL.cs" />
-    <SliceSaldoExcluido Include="AuditoriaBLL.cs" />
   </ItemGroup>
   <ItemGroup Condition="'$(SliceSaldo)' == 'true' and '$(MSBuildProjectName)' == 'Ejemplo.WCF.Contratos'">
     <Compile Remove="IClientesServicio.cs" />

@@ -17,7 +17,7 @@ namespace Ejemplo.Componentes.DAT
                     ConexionHelper.AgregarParametro(cmd, "@NombreArchivo", archivo);
                     ConexionHelper.AgregarParametro(cmd, "@TipoImportacion", tipo);
                     ConexionHelper.AgregarParametro(cmd, "@TotalRegistros", total);
-                    ConexionHelper.AgregarParametro(cmd, "@UsuarioRegistro", usuario);
+                    ConexionHelper.AgregarParametro(cmd, "@Usuario", usuario);
 
                     SqlParameter outputId = new SqlParameter("@LoteId", SqlDbType.Int) { Direction = ParameterDirection.Output };
                     cmd.Parameters.Add(outputId);
@@ -42,7 +42,7 @@ namespace Ejemplo.Componentes.DAT
                 {
                     ConexionHelper.AgregarParametro(cmd, "@LoteId", loteId);
                     ConexionHelper.AgregarParametro(cmd, "@NumeroLinea", numLinea);
-                    ConexionHelper.AgregarParametro(cmd, "@Contenido", contenido);
+                    ConexionHelper.AgregarParametro(cmd, "@ContenidoLinea", contenido);
                     
                     cmd.ExecuteNonQuery();
                 }
@@ -61,7 +61,7 @@ namespace Ejemplo.Componentes.DAT
                 using (SqlCommand cmd = ConexionHelper.CrearComandoSP(conn, tx, "sp_ProcesarLoteImportacion"))
                 {
                     ConexionHelper.AgregarParametro(cmd, "@LoteId", loteId);
-                    ConexionHelper.AgregarParametro(cmd, "@UsuarioProceso", usuario);
+                    ConexionHelper.AgregarParametro(cmd, "@Usuario", usuario);
                     
                     cmd.ExecuteNonQuery();
                 }
@@ -94,7 +94,7 @@ namespace Ejemplo.Componentes.DAT
                                 Estado = ConexionHelper.LeerValor<string>(reader, "Estado"),
                                 TotalRegistros = ConexionHelper.LeerValor<int>(reader, "TotalRegistros"),
                                 RegistrosProcesados = ConexionHelper.LeerValor<int>(reader, "RegistrosProcesados"),
-                                FechaRegistro = ConexionHelper.LeerValor<DateTime>(reader, "FechaRegistro")
+                                FechaRecepcion = ConexionHelper.LeerValor<DateTime>(reader, "FechaRecepcion")
                             };
                         }
                     }
