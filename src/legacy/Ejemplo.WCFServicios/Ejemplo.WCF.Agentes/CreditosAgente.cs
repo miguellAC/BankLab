@@ -35,5 +35,10 @@ namespace Ejemplo.WCF.Agentes
         {
             return EjecutarOperacion(c => c.ConsultarCuotasOperacion(operacionId, soloVencidas, soloPendientes), nameof(ConsultarCuotasOperacion));
         }
+
+        public RespuestaOperacion<List<CuotaDTO>> ConsultarCuotasPendientesVencidas(int? clienteId)
+        {
+            return EjecutarOperacion(c => c.ConsultarCuotasPendientesVencidas(clienteId), nameof(ConsultarCuotasPendientesVencidas));
+        }
     }
 }

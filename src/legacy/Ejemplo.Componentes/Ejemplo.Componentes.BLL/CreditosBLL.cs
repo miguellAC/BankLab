@@ -16,15 +16,15 @@ namespace Ejemplo.Componentes.BLL
             try
             {
                 if (!opId.HasValue && string.IsNullOrWhiteSpace(numOp))
-                    return RespuestaOperacion<OperacionCreditoDTO>.Error("Debe especificar ID u número de operación.");
+                    return RespuestaOperacion<OperacionCreditoDTO>.CrearError("Debe especificar ID u número de operación.");
 
                 var operacion = _creditosDAS.ConsultarOperacionCredito(opId, numOp);
-                return RespuestaOperacion<OperacionCreditoDTO>.Exito(operacion);
+                return RespuestaOperacion<OperacionCreditoDTO>.CrearExitosa(operacion);
             }
             catch (Exception ex)
             {
                 LogHelper.Error("ConsultarOperacionCredito BLL", ex);
-                return RespuestaOperacion<OperacionCreditoDTO>.Error(ex.Message);
+                return RespuestaOperacion<OperacionCreditoDTO>.CrearError(ex.Message);
             }
         }
 
@@ -32,17 +32,17 @@ namespace Ejemplo.Componentes.BLL
         {
             try
             {
-                if (opId <= 0) return RespuestaOperacion<SaldoOperacionDTO>.Error("ID inválido.");
+                if (opId <= 0) return RespuestaOperacion<SaldoOperacionDTO>.CrearError("ID inválido.");
                 
                 var saldo = _creditosDAS.ConsultarSaldosVigenteVencido(opId);
                 return saldo != null 
-                    ? RespuestaOperacion<SaldoOperacionDTO>.Exito(saldo)
-                    : RespuestaOperacion<SaldoOperacionDTO>.Error("No encontrado.");
+                    ? RespuestaOperacion<SaldoOperacionDTO>.CrearExitosa(saldo)
+                    : RespuestaOperacion<SaldoOperacionDTO>.CrearError("No encontrado.");
             }
             catch (Exception ex)
             {
                 LogHelper.Error("ConsultarSaldosVigenteVencido BLL", ex);
-                return RespuestaOperacion<SaldoOperacionDTO>.Error("Error interno.");
+                return RespuestaOperacion<SaldoOperacionDTO>.CrearError("Error interno.");
             }
         }
 
@@ -50,13 +50,15 @@ namespace Ejemplo.Componentes.BLL
         {
             try
             {
+                if (opId <= 0) return RespuestaOperacion<List<CuotaDTO>>.CrearError("ID de operación inválido.");
+
                 var cuotas = _creditosDAS.ConsultarCuotasOperacion(opId, soloVencidas, soloPendientes);
-                return RespuestaOperacion<List<CuotaDTO>>.Exito(cuotas);
+                return RespuestaOperacion<List<CuotaDTO>>.CrearExitosa(cuotas);
             }
             catch (Exception ex)
             {
                 LogHelper.Error("ConsultarCuotasOperacion BLL", ex);
-                return RespuestaOperacion<List<CuotaDTO>>.Error("Error interno.");
+                return RespuestaOperacion<List<CuotaDTO>>.CrearError("Error interno.");
             }
         }
 
@@ -65,12 +67,12 @@ namespace Ejemplo.Componentes.BLL
             try
             {
                 var cuotas = _creditosDAS.ConsultarCuotasPendientesVencidas(clienteId);
-                return RespuestaOperacion<List<CuotaDTO>>.Exito(cuotas);
+                return RespuestaOperacion<List<CuotaDTO>>.CrearExitosa(cuotas);
             }
             catch (Exception ex)
             {
                 LogHelper.Error("ConsultarCuotasPendientesVencidas BLL", ex);
-                return RespuestaOperacion<List<CuotaDTO>>.Error("Error interno.");
+                return RespuestaOperacion<List<CuotaDTO>>.CrearError("Error interno.");
             }
         }
     }

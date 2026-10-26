@@ -29,8 +29,8 @@ namespace Ejemplo.Componentes.DAT
                                 OperacionId = ConexionHelper.LeerValor<int>(reader, "OperacionId"),
                                 NumeroOperacion = ConexionHelper.LeerValor<string>(reader, "NumeroOperacion"),
                                 ClienteId = ConexionHelper.LeerValor<int>(reader, "ClienteId"),
-                                MontoOriginal = ConexionHelper.LeerValor<decimal>(reader, "MontoOriginal"),
-                                TasaInteres = ConexionHelper.LeerValor<decimal>(reader, "TasaInteres"),
+                                MontoDesembolsado = ConexionHelper.LeerValor<decimal>(reader, "MontoDesembolsado"),
+                                TasaAnual = ConexionHelper.LeerValor<decimal>(reader, "TasaAnual"),
                                 Estado = ConexionHelper.LeerValor<string>(reader, "Estado")
                             };
                         }
@@ -67,8 +67,8 @@ namespace Ejemplo.Componentes.DAT
                             return new SaldoOperacionDTO
                             {
                                 OperacionId = opId,
-                                SaldoVigente = ConexionHelper.LeerValor<decimal>(reader, "SaldoVigente"),
-                                SaldoVencido = ConexionHelper.LeerValor<decimal>(reader, "SaldoVencido")
+                                SaldoCapitalVigente = ConexionHelper.LeerValor<decimal>(reader, "SaldoCapitalVigente"),
+                                SaldoCapitalVencido = ConexionHelper.LeerValor<decimal>(reader, "SaldoCapitalVencido")
                             };
                         }
                     }
@@ -110,8 +110,8 @@ namespace Ejemplo.Componentes.DAT
                                 OperacionId = ConexionHelper.LeerValor<int>(reader, "OperacionId"),
                                 NumeroCuota = ConexionHelper.LeerValor<int>(reader, "NumeroCuota"),
                                 FechaVencimiento = ConexionHelper.LeerValor<DateTime>(reader, "FechaVencimiento"),
-                                Capital = ConexionHelper.LeerValor<decimal>(reader, "Capital"),
-                                Interes = ConexionHelper.LeerValor<decimal>(reader, "Interes"),
+                                CapitalCuota = ConexionHelper.LeerValor<decimal>(reader, "CapitalCuota"),
+                                InteresCuota = ConexionHelper.LeerValor<decimal>(reader, "InteresCuota"),
                                 Estado = ConexionHelper.LeerValor<string>(reader, "Estado")
                             });
                         }
@@ -152,8 +152,8 @@ namespace Ejemplo.Componentes.DAT
                                 OperacionId = ConexionHelper.LeerValor<int>(reader, "OperacionId"),
                                 NumeroCuota = ConexionHelper.LeerValor<int>(reader, "NumeroCuota"),
                                 FechaVencimiento = ConexionHelper.LeerValor<DateTime>(reader, "FechaVencimiento"),
-                                Capital = ConexionHelper.LeerValor<decimal>(reader, "Capital"),
-                                Interes = ConexionHelper.LeerValor<decimal>(reader, "Interes"),
+                                CapitalCuota = ConexionHelper.LeerValor<decimal>(reader, "CapitalCuota"),
+                                InteresCuota = ConexionHelper.LeerValor<decimal>(reader, "InteresCuota"),
                                 Estado = ConexionHelper.LeerValor<string>(reader, "Estado")
                             });
                         }

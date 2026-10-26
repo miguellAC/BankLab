@@ -12,18 +12,17 @@ namespace Ejemplo.WCF.Servicios
     [ServiceBehavior(InstanceContextMode = InstanceContextMode.PerCall, ConcurrencyMode = ConcurrencyMode.Multiple)]
     public class CreditosServicio : ICreditosServicio
     {
-        public RespuestaOperacion<OperacionCreditoDTO> ConsultarOperacionCredito(int operacionId)
+        public RespuestaOperacion<OperacionCreditoDTO> ConsultarOperacionCredito(int? operacionId, string numeroOperacion)
         {
             try
             {
-                LogUtil.Info($"ConsultarOperacionCredito: {operacionId}");
+                LogHelper.Informacion($"ConsultarOperacionCredito: {operacionId} / {numeroOperacion}");
                 var bll = new CreditosBLL();
-                var result = bll.ConsultarOperacionCredito(operacionId);
-                return RespuestaOperacion<OperacionCreditoDTO>.CrearExito(result);
+                return bll.ConsultarOperacionCredito(operacionId, numeroOperacion);
             }
             catch (Exception ex)
             {
-                LogUtil.Error(ex);
+                LogHelper.Error("ConsultarOperacionCredito WCF", ex);
                 return RespuestaOperacion<OperacionCreditoDTO>.CrearError(ex.Message);
             }
         }
@@ -32,31 +31,44 @@ namespace Ejemplo.WCF.Servicios
         {
             try
             {
-                LogUtil.Info($"ConsultarSaldosVigenteVencido: {operacionId}");
+                LogHelper.Informacion($"ConsultarSaldosVigenteVencido: {operacionId}");
                 var bll = new CreditosBLL();
-                var result = bll.ConsultarSaldosVigenteVencido(operacionId);
-                return RespuestaOperacion<SaldoOperacionDTO>.CrearExito(result);
+                return bll.ConsultarSaldosVigenteVencido(operacionId);
             }
             catch (Exception ex)
             {
-                LogUtil.Error(ex);
+                LogHelper.Error("ConsultarSaldosVigenteVencido WCF", ex);
                 return RespuestaOperacion<SaldoOperacionDTO>.CrearError(ex.Message);
             }
         }
 
-        public RespuestaOperacion<List<CuotaCreditoDTO>> ConsultarCuotasOperacion(int operacionId)
+        public RespuestaOperacion<List<CuotaDTO>> ConsultarCuotasOperacion(int operacionId, bool soloVencidas, bool soloPendientes)
         {
             try
             {
-                LogUtil.Info($"ConsultarCuotasOperacion: {operacionId}");
+                LogHelper.Informacion($"ConsultarCuotasOperacion: {operacionId}");
                 var bll = new CreditosBLL();
-                var result = bll.ConsultarCuotasOperacion(operacionId);
-                return RespuestaOperacion<List<CuotaCreditoDTO>>.CrearExito(result);
+                return bll.ConsultarCuotasOperacion(operacionId, soloVencidas, soloPendientes);
             }
             catch (Exception ex)
             {
-                LogUtil.Error(ex);
-                return RespuestaOperacion<List<CuotaCreditoDTO>>.CrearError(ex.Message);
+                LogHelper.Error("ConsultarCuotasOperacion WCF", ex);
+                return RespuestaOperacion<List<CuotaDTO>>.CrearError(ex.Message);
+            }
+        }
+
+        public RespuestaOperacion<List<CuotaDTO>> ConsultarCuotasPendientesVencidas(int? clienteId)
+        {
+            try
+            {
+                LogHelper.Informacion($"ConsultarCuotasPendientesVencidas: clienteId={clienteId}");
+                var bll = new CreditosBLL();
+                return bll.ConsultarCuotasPendientesVencidas(clienteId);
+            }
+            catch (Exception ex)
+            {
+                LogHelper.Error("ConsultarCuotasPendientesVencidas WCF", ex);
+                return RespuestaOperacion<List<CuotaDTO>>.CrearError(ex.Message);
             }
         }
     }

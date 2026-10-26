@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.ServiceModel;
 using Ejemplo.Comun.DTOs.Creditos;
@@ -9,12 +10,15 @@ namespace Ejemplo.WCF.Contratos
     public interface ICreditosServicio
     {
         [OperationContract]
-        RespuestaOperacion<OperacionCreditoDTO> ConsultarOperacionCredito(int operacionId);
+        RespuestaOperacion<OperacionCreditoDTO> ConsultarOperacionCredito(int? operacionId, string numeroOperacion);
 
         [OperationContract]
         RespuestaOperacion<SaldoOperacionDTO> ConsultarSaldosVigenteVencido(int operacionId);
 
         [OperationContract]
-        RespuestaOperacion<List<CuotaCreditoDTO>> ConsultarCuotasOperacion(int operacionId);
+        RespuestaOperacion<List<CuotaDTO>> ConsultarCuotasOperacion(int operacionId, bool soloVencidas, bool soloPendientes);
+
+        [OperationContract]
+        RespuestaOperacion<List<CuotaDTO>> ConsultarCuotasPendientesVencidas(int? clienteId);
     }
 }

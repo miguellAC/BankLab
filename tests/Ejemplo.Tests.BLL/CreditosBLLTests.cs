@@ -17,14 +17,14 @@ namespace Ejemplo.Tests.BLL
         [TestMethod]
         public void ConsultarOperacion_SinParametros_RetornaError()
         {
-            var resultado = _bll.ConsultarOperacion(null, "");
+            var resultado = _bll.ConsultarOperacionCredito(null, "");
             Assert.IsFalse(resultado.Exitosa);
         }
 
         [TestMethod]
         public void ConsultarCuotas_OperacionIdInvalido_RetornaError()
         {
-            var resultado = _bll.ConsultarCuotas(0, false, false);
+            var resultado = _bll.ConsultarCuotasOperacion(0, false, false);
             Assert.IsFalse(resultado.Exitosa);
         }
     }
