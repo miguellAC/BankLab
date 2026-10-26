@@ -15,22 +15,19 @@ namespace Ejemplo.Componentes.BLL
         {
             try
             {
-                var validador = new ValidadorIdentificacion();
-                if (!validador.ValidarFormato(tipoId, numero))
-                {
-                    return RespuestaOperacion<ClienteDTO>.Error("Identificación inválida.");
-                }
+                if (string.IsNullOrWhiteSpace(numero))
+                    return RespuestaOperacion<ClienteDTO>.CrearError("El número de identificación es obligatorio.");
 
                 var cliente = _clientesDAS.ConsultarCliente(tipoId, numero);
                 if (cliente == null)
-                    return RespuestaOperacion<ClienteDTO>.Error("Cliente no encontrado.");
+                    return RespuestaOperacion<ClienteDTO>.CrearError("Cliente no encontrado.");
 
-                return RespuestaOperacion<ClienteDTO>.Exito(cliente);
+                return RespuestaOperacion<ClienteDTO>.CrearExitosa(cliente);
             }
             catch (Exception ex)
             {
                 LogHelper.Error("ConsultarCliente BLL", ex);
-                return RespuestaOperacion<ClienteDTO>.Error("Error interno al consultar el cliente.");
+                return RespuestaOperacion<ClienteDTO>.CrearError("Error interno al consultar el cliente.");
             }
         }
 
@@ -39,17 +36,17 @@ namespace Ejemplo.Componentes.BLL
             try
             {
                 if (clienteId <= 0)
-                    return RespuestaOperacion<ClienteDTO>.Error("ID de cliente debe ser mayor a 0.");
+                    return RespuestaOperacion<ClienteDTO>.CrearError("ID de cliente debe ser mayor a 0.");
 
                 var cliente = _clientesDAS.ConsultarClientePorId(clienteId);
-                return cliente != null 
-                    ? RespuestaOperacion<ClienteDTO>.Exito(cliente) 
-                    : RespuestaOperacion<ClienteDTO>.Error("Cliente no encontrado.");
+                return cliente != null
+                    ? RespuestaOperacion<ClienteDTO>.CrearExitosa(cliente)
+                    : RespuestaOperacion<ClienteDTO>.CrearError("Cliente no encontrado.");
             }
             catch (Exception ex)
             {
                 LogHelper.Error("ConsultarClientePorId BLL", ex);
-                return RespuestaOperacion<ClienteDTO>.Error("Error interno.");
+                return RespuestaOperacion<ClienteDTO>.CrearError("Error interno.");
             }
         }
 
@@ -61,12 +58,12 @@ namespace Ejemplo.Componentes.BLL
                 if (pageSize <= 0) pageSize = 10;
 
                 var result = _clientesDAS.BuscarClientes(nombres, apellidos, numId, estado, sucursalId, pageNumber, pageSize);
-                return RespuestaOperacion<PaginacionDTO<ClienteDTO>>.Exito(result);
+                return RespuestaOperacion<PaginacionDTO<ClienteDTO>>.CrearExitosa(result);
             }
             catch (Exception ex)
             {
                 LogHelper.Error("BuscarClientes BLL", ex);
-                return RespuestaOperacion<PaginacionDTO<ClienteDTO>>.Error("Error al buscar clientes.");
+                return RespuestaOperacion<PaginacionDTO<ClienteDTO>>.CrearError("Error al buscar clientes.");
             }
         }
 
@@ -75,21 +72,21 @@ namespace Ejemplo.Componentes.BLL
             try
             {
                 if (cliente == null)
-                    return RespuestaOperacion<int>.Error("Datos del cliente requeridos.");
+                    return RespuestaOperacion<int>.CrearError("Datos del cliente requeridos.");
 
-                var validador = new ValidadorIdentificacion();
-                if (!validador.ValidarFormato(cliente.TipoIdentificacion, cliente.NumeroIdentificacion))
-                {
-                    return RespuestaOperacion<int>.Error("Identificación inválida.");
-                }
+                if (string.IsNullOrWhiteSpace(cliente.PrimerNombre))
+                    return RespuestaOperacion<int>.CrearError("El primer nombre es obligatorio.");
+
+                if (string.IsNullOrWhiteSpace(cliente.NumeroIdentificacion))
+                    return RespuestaOperacion<int>.CrearError("Número de identificación inválido.");
 
                 int id = _clientesDAS.RegistrarCliente(cliente, dir, contacto, usuario);
-                return RespuestaOperacion<int>.Exito(id);
+                return RespuestaOperacion<int>.CrearExitosa(id);
             }
             catch (Exception ex)
             {
                 LogHelper.Error("RegistrarCliente BLL", ex);
-                return RespuestaOperacion<int>.Error("Error al registrar cliente.");
+                return RespuestaOperacion<int>.CrearError("Error al registrar cliente.");
             }
         }
     }

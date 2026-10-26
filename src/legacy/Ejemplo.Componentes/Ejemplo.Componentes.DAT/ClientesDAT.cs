@@ -17,7 +17,7 @@ namespace Ejemplo.Componentes.DAT
                 conn = ConexionHelper.ObtenerConexion();
                 using (SqlCommand cmd = ConexionHelper.CrearComandoSP(conn, "sp_ConsultarClientePorIdentificacion"))
                 {
-                    ConexionHelper.AgregarParametro(cmd, "@TipoIdentificacion", tipoId);
+                    ConexionHelper.AgregarParametro(cmd, "@TipoIdentificacionId", tipoId);
                     ConexionHelper.AgregarParametro(cmd, "@NumeroIdentificacion", numero);
 
                     conn.Open();
@@ -98,9 +98,9 @@ namespace Ejemplo.Componentes.DAT
                     {
                         if (reader.Read())
                         {
-                            result.TotalRecords = ConexionHelper.LeerValor<int>(reader, "Total");
+                            result.TotalRecords = ConexionHelper.LeerValor<int>(reader, "TotalRegistros");
                         }
-                        
+
                         if (reader.NextResult())
                         {
                             result.Items = new System.Collections.Generic.List<ClienteDTO>();
@@ -131,12 +131,12 @@ namespace Ejemplo.Componentes.DAT
             {
                 using (SqlCommand cmd = ConexionHelper.CrearComandoSP(conn, tx, "sp_RegistrarCliente"))
                 {
-                    ConexionHelper.AgregarParametro(cmd, "@Nombres", cliente.Nombres);
-                    ConexionHelper.AgregarParametro(cmd, "@Apellidos", cliente.Apellidos);
-                    ConexionHelper.AgregarParametro(cmd, "@TipoIdentificacion", cliente.TipoIdentificacion);
+                    ConexionHelper.AgregarParametro(cmd, "@PrimerNombre", cliente.PrimerNombre);
+                    ConexionHelper.AgregarParametro(cmd, "@PrimerApellido", cliente.PrimerApellido);
+                    ConexionHelper.AgregarParametro(cmd, "@TipoIdentificacionId", cliente.TipoIdentificacionId);
                     ConexionHelper.AgregarParametro(cmd, "@NumeroIdentificacion", cliente.NumeroIdentificacion);
                     ConexionHelper.AgregarParametro(cmd, "@FechaNacimiento", cliente.FechaNacimiento);
-                    ConexionHelper.AgregarParametro(cmd, "@UsuarioAuditoria", usuario);
+                    ConexionHelper.AgregarParametro(cmd, "@Usuario", usuario);
 
                     SqlParameter outputId = new SqlParameter("@ClienteId", SqlDbType.Int) { Direction = ParameterDirection.Output };
                     cmd.Parameters.Add(outputId);
@@ -158,11 +158,13 @@ namespace Ejemplo.Componentes.DAT
             return new ClienteDTO
             {
                 ClienteId = ConexionHelper.LeerValor<int>(reader, "ClienteId"),
-                Nombres = ConexionHelper.LeerValor<string>(reader, "Nombres"),
-                Apellidos = ConexionHelper.LeerValor<string>(reader, "Apellidos"),
-                TipoIdentificacion = ConexionHelper.LeerValor<int>(reader, "TipoIdentificacion"),
+                TipoIdentificacionId = ConexionHelper.LeerValor<int>(reader, "TipoIdentificacionId"),
                 NumeroIdentificacion = ConexionHelper.LeerValor<string>(reader, "NumeroIdentificacion"),
-                FechaNacimiento = ConexionHelper.LeerFechaNullable(reader, "FechaNacimiento").GetValueOrDefault(),
+                PrimerNombre = ConexionHelper.LeerValor<string>(reader, "PrimerNombre"),
+                SegundoNombre = ConexionHelper.LeerValor<string>(reader, "SegundoNombre"),
+                PrimerApellido = ConexionHelper.LeerValor<string>(reader, "PrimerApellido"),
+                SegundoApellido = ConexionHelper.LeerValor<string>(reader, "SegundoApellido"),
+                FechaNacimiento = ConexionHelper.LeerFechaNullable(reader, "FechaNacimiento"),
                 Estado = ConexionHelper.LeerValor<string>(reader, "Estado")
             };
         }

@@ -26,15 +26,15 @@ namespace Ejemplo.Componentes.DAL
             // Business rule: Normalize names to uppercase
             string n = string.IsNullOrWhiteSpace(nombres) ? null : nombres.Trim().ToUpper();
             string a = string.IsNullOrWhiteSpace(apellidos) ? null : apellidos.Trim().ToUpper();
-            
+
             return _clientesDAT.BuscarClientes(n, a, numId, estado, sucursalId, pageNumber, pageSize);
         }
 
         public int RegistrarCliente(SqlConnection conn, SqlTransaction tx, ClienteDTO cliente, DireccionDTO dir, ContactoDTO contacto, string usuario)
         {
             // Business rule: Normalize inputs
-            cliente.Nombres = cliente.Nombres?.Trim().ToUpper();
-            cliente.Apellidos = cliente.Apellidos?.Trim().ToUpper();
+            if (cliente.PrimerNombre != null) cliente.PrimerNombre = cliente.PrimerNombre.Trim().ToUpper();
+            if (cliente.PrimerApellido != null) cliente.PrimerApellido = cliente.PrimerApellido.Trim().ToUpper();
             return _clientesDAT.RegistrarCliente(conn, tx, cliente, dir, contacto, usuario);
         }
     }

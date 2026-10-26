@@ -15,14 +15,13 @@ namespace Ejemplo.WCF.Servicios
         {
             try
             {
-                LogUtil.Info($"ConsultarClientePorIdentificacion: tipo {tipoIdentificacionId}, num {numeroIdentificacion}");
+                LogHelper.Informacion($"ConsultarClientePorIdentificacion: tipo {tipoIdentificacionId}, num {numeroIdentificacion}");
                 var bll = new ClientesBLL();
-                var result = bll.ConsultarClientePorIdentificacion(tipoIdentificacionId, numeroIdentificacion);
-                return RespuestaOperacion<ClienteDTO>.CrearExito(result);
+                return bll.ConsultarCliente(tipoIdentificacionId, numeroIdentificacion);
             }
             catch (Exception ex)
             {
-                LogUtil.Error(ex);
+                LogHelper.Error("ConsultarClientePorIdentificacion WCF", ex);
                 return RespuestaOperacion<ClienteDTO>.CrearError(ex.Message);
             }
         }
@@ -31,14 +30,13 @@ namespace Ejemplo.WCF.Servicios
         {
             try
             {
-                LogUtil.Info($"ConsultarClientePorId: {clienteId}");
+                LogHelper.Informacion($"ConsultarClientePorId: {clienteId}");
                 var bll = new ClientesBLL();
-                var result = bll.ConsultarClientePorId(clienteId);
-                return RespuestaOperacion<ClienteDTO>.CrearExito(result);
+                return bll.ConsultarClientePorId(clienteId);
             }
             catch (Exception ex)
             {
-                LogUtil.Error(ex);
+                LogHelper.Error("ConsultarClientePorId WCF", ex);
                 return RespuestaOperacion<ClienteDTO>.CrearError(ex.Message);
             }
         }
@@ -47,14 +45,13 @@ namespace Ejemplo.WCF.Servicios
         {
             try
             {
-                LogUtil.Info($"BuscarClientes: page {pageNumber}");
+                LogHelper.Informacion($"BuscarClientes: page {pageNumber}");
                 var bll = new ClientesBLL();
-                var result = bll.BuscarClientes(nombres, apellidos, numeroIdentificacion, estado, sucursalId, pageNumber, pageSize);
-                return RespuestaOperacion<PaginacionDTO<ClienteDTO>>.CrearExito(result);
+                return bll.BuscarClientes(nombres, apellidos, numeroIdentificacion, estado, sucursalId, pageNumber, pageSize);
             }
             catch (Exception ex)
             {
-                LogUtil.Error(ex);
+                LogHelper.Error("BuscarClientes WCF", ex);
                 return RespuestaOperacion<PaginacionDTO<ClienteDTO>>.CrearError(ex.Message);
             }
         }
@@ -63,14 +60,13 @@ namespace Ejemplo.WCF.Servicios
         {
             try
             {
-                LogUtil.Info($"RegistrarCliente: por {usuario}");
+                LogHelper.Informacion($"RegistrarCliente: por {usuario}");
                 var bll = new ClientesBLL();
-                var result = bll.RegistrarCliente(cliente, direccion, contacto, usuario);
-                return RespuestaOperacion<int>.CrearExito(result);
+                return bll.RegistrarCliente(cliente, direccion, contacto, usuario);
             }
             catch (Exception ex)
             {
-                LogUtil.Error(ex);
+                LogHelper.Error("RegistrarCliente WCF", ex);
                 return RespuestaOperacion<int>.CrearError(ex.Message);
             }
         }
