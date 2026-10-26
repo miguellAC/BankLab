@@ -1,7 +1,8 @@
 # ============================================================================
-# BankLab - Abre Ejemplo.Saldo.sln en Visual Studio con la rebanada ACTIVADA
-# (define SliceSaldo=true solo para ese proceso de Visual Studio; MSBuild lee las
-# variables de entorno como propiedades). No cambia ninguna configuracion global.
+# BankLab - Abre Ejemplo.Saldo.sln en Visual Studio.
+# NOTA: el mecanismo SliceSaldo fue retirado en la fase 8-11 (feature/saldo-modulo-normal).
+# Ya no es necesario definir SliceSaldo=true; la solucion compila normalmente
+# incluyendo todos los modulos (Cartera, Pagos, Creditos, Clientes).
 # ============================================================================
 $ErrorActionPreference = "Stop"
 
@@ -13,8 +14,7 @@ $devenv = $null
 if (Test-Path $vswhere) {
     $devenv = & $vswhere -latest -property productPath | Select-Object -First 1
 }
-if (-not $devenv) { throw "No se encontro devenv.exe. Abra Visual Studio manualmente con la variable SliceSaldo=true definida." }
+if (-not $devenv) { throw "No se encontro devenv.exe. Abra Visual Studio manualmente." }
 
-$env:SliceSaldo = "true"
-Write-Host "Abriendo $sln con SliceSaldo=true ..."
+Write-Host "Abriendo $sln ..."
 Start-Process -FilePath $devenv -ArgumentList "`"$sln`""

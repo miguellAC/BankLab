@@ -1,6 +1,7 @@
 # ============================================================================
-# BankLab - Compila la REBANADA "Saldo" (Ejemplo.Saldo.sln) con SliceSaldo=true.
-# Solo esta solucion usa la rebanada; las soluciones normales no se tocan.
+# BankLab - Compila la solucion Ejemplo.Saldo.sln (modulo Saldo completo).
+# El mecanismo SliceSaldo fue retirado en la fase 8-11 (feature/saldo-modulo-normal).
+# Todos los modulos (Cartera, Pagos, Creditos, Clientes) compilan en la solucion normal.
 # Los proyectos son de estilo clasico (sin PackageReference): no requiere restore.
 # ============================================================================
 param([string]$Configuration = "Debug")
@@ -13,10 +14,11 @@ $sln = Join-Path $repoRoot "src\legacy\Ejemplo.Saldo\Ejemplo.Saldo.sln"
 $msbuild = Get-MSBuildPath
 
 Write-Host "MSBuild: $msbuild"
-& $msbuild $sln /p:SliceSaldo=true /p:Configuration=$Configuration /v:minimal /nologo
-if ($LASTEXITCODE -ne 0) { throw "La compilacion de la rebanada fallo (codigo $LASTEXITCODE)." }
+& $msbuild $sln /p:Configuration=$Configuration /v:minimal /nologo
+if ($LASTEXITCODE -ne 0) { throw "La compilacion de Ejemplo.Saldo fallo (codigo $LASTEXITCODE)." }
 
 Write-Host ""
-Write-Host "Rebanada compilada. Salidas:" -ForegroundColor Green
-Write-Host "  Host   : src\legacy\Ejemplo.Saldo\Ejemplo.Saldo.Host\bin\$Configuration\Ejemplo.Saldo.Host.exe"
-Write-Host "  Cliente: src\legacy\Ejemplo.Saldo\Ejemplo.Saldo.Cliente\bin\$Configuration\Ejemplo.Saldo.Cliente.exe"
+Write-Host "Solucion Saldo compilada. Salidas:" -ForegroundColor Green
+Write-Host "  Host      : src\legacy\Ejemplo.Saldo\Ejemplo.Saldo.Host\bin\$Configuration\Ejemplo.Saldo.Host.exe"
+Write-Host "  HostIIS   : src\legacy\Ejemplo.Saldo\Ejemplo.Saldo.HostIIS\bin\Ejemplo.Saldo.HostIIS.dll"
+Write-Host "  Cliente   : src\legacy\Ejemplo.Saldo\Ejemplo.Saldo.Cliente\bin\$Configuration\Ejemplo.Saldo.Cliente.exe"

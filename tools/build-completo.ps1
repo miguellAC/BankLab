@@ -1,6 +1,8 @@
-# ============================================================================
+﻿# ============================================================================
 # BankLab - Compila SIN rebanada, proyecto a proyecto, e imprime los errores unicos.
 # Sirve para comparar con docs/fase1-errores-compilacion-completa.md.
+# NOTA: SliceSaldo fue retirado en feature/saldo-modulo-normal; todos los modulos
+# compilan en la solucion normal sin ninguna propiedad especial.
 # No modifica nada; los proyectos que fallen se informan y el script continua.
 # ============================================================================
 param([string]$Configuration = "Debug", [string]$Salida = "")

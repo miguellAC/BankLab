@@ -1,4 +1,4 @@
-
+﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.31903.59
@@ -30,6 +30,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ejemplo.Saldo.Host", "Ejemplo.Saldo.Host\Ejemplo.Saldo.Host.csproj", "{5A1D0000-0000-4000-8000-000000000001}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ejemplo.Saldo.Cliente", "Ejemplo.Saldo.Cliente\Ejemplo.Saldo.Cliente.csproj", "{5A1D0000-0000-4000-8000-000000000002}"
+EndProject
+Project("{349C5851-65DF-11DA-9384-00065B846F21}") = "Ejemplo.Saldo.HostIIS", "Ejemplo.Saldo.HostIIS\Ejemplo.Saldo.HostIIS.csproj", "{FA1B2C3D-1001-1001-1001-000000000001}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -93,6 +95,10 @@ Global
 		{5A1D0000-0000-4000-8000-000000000002}.Debug|Any CPU.Build.0 = Debug|AnyCPU
 		{5A1D0000-0000-4000-8000-000000000002}.Release|Any CPU.ActiveCfg = Release|AnyCPU
 		{5A1D0000-0000-4000-8000-000000000002}.Release|Any CPU.Build.0 = Release|AnyCPU
+		{FA1B2C3D-1001-1001-1001-000000000001}.Debug|Any CPU.ActiveCfg = Debug|AnyCPU
+		{FA1B2C3D-1001-1001-1001-000000000001}.Debug|Any CPU.Build.0 = Debug|AnyCPU
+		{FA1B2C3D-1001-1001-1001-000000000001}.Release|Any CPU.ActiveCfg = Release|AnyCPU
+		{FA1B2C3D-1001-1001-1001-000000000001}.Release|Any CPU.Build.0 = Release|AnyCPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
