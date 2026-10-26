@@ -16,20 +16,20 @@ namespace Ejemplo.Componentes.BLL
         {
             try
             {
-                if (monto <= 0)
-                    return RespuestaOperacion<long>.Error("El monto debe ser mayor a cero.");
+                if (opId <= 0)
+                    return RespuestaOperacion<long>.CrearError("ID de operación inválido.");
 
-                var validadorMonto = new ValidadorMonto();
-                if (!validadorMonto.EsMontoValido(monto))
-                    return RespuestaOperacion<long>.Error("El monto excede los límites permitidos.");
+                var validacion = ValidadorMonto.ValidarMontoPositivo(monto);
+                if (!validacion.EsValido)
+                    return RespuestaOperacion<long>.CrearError(string.Join("; ", validacion.Errores));
 
                 long pagoId = _pagosDAS.RegistrarPago(opId, monto, tipoPago, canalPago, cuentaOrigenId, referencia, usuario);
-                return RespuestaOperacion<long>.Exito(pagoId);
+                return RespuestaOperacion<long>.CrearExitosa(pagoId);
             }
             catch (Exception ex)
             {
                 LogHelper.Error("RegistrarPago BLL", ex);
-                return RespuestaOperacion<long>.Error(ex.Message);
+                return RespuestaOperacion<long>.CrearError(ex.Message);
             }
         }
 
@@ -38,15 +38,15 @@ namespace Ejemplo.Componentes.BLL
             try
             {
                 if (opId <= 0)
-                    return RespuestaOperacion<List<PagoDTO>>.Error("ID de operación inválido.");
+                    return RespuestaOperacion<List<PagoDTO>>.CrearError("ID de operación inválido.");
 
                 var pagos = _pagosDAS.ConsultarPagosOperacion(opId, desde, hasta);
-                return RespuestaOperacion<List<PagoDTO>>.Exito(pagos);
+                return RespuestaOperacion<List<PagoDTO>>.CrearExitosa(pagos);
             }
             catch (Exception ex)
             {
                 LogHelper.Error("ConsultarPagosOperacion BLL", ex);
-                return RespuestaOperacion<List<PagoDTO>>.Error("Error al consultar pagos.");
+                return RespuestaOperacion<List<PagoDTO>>.CrearError("Error al consultar pagos.");
             }
         }
     }

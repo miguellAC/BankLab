@@ -16,12 +16,12 @@ namespace Ejemplo.Componentes.DAT
                 using (SqlCommand cmd = ConexionHelper.CrearComandoSP(conn, tx, "sp_RegistrarPago"))
                 {
                     ConexionHelper.AgregarParametro(cmd, "@OperacionId", opId);
-                    ConexionHelper.AgregarParametro(cmd, "@Monto", monto);
+                    ConexionHelper.AgregarParametro(cmd, "@MontoPago", monto);
                     ConexionHelper.AgregarParametro(cmd, "@TipoPago", tipoPago);
                     ConexionHelper.AgregarParametro(cmd, "@CanalPago", canalPago);
                     ConexionHelper.AgregarParametro(cmd, "@CuentaOrigenId", cuentaOrigenId);
                     ConexionHelper.AgregarParametro(cmd, "@Referencia", referencia);
-                    ConexionHelper.AgregarParametro(cmd, "@UsuarioAuditoria", usuario);
+                    ConexionHelper.AgregarParametro(cmd, "@Usuario", usuario);
 
                     SqlParameter outputId = new SqlParameter("@PagoId", SqlDbType.BigInt) { Direction = ParameterDirection.Output };
                     cmd.Parameters.Add(outputId);
@@ -48,8 +48,8 @@ namespace Ejemplo.Componentes.DAT
                 using (SqlCommand cmd = ConexionHelper.CrearComandoSP(conn, "sp_ConsultarPagosOperacion"))
                 {
                     ConexionHelper.AgregarParametro(cmd, "@OperacionId", opId);
-                    ConexionHelper.AgregarParametro(cmd, "@Desde", desde);
-                    ConexionHelper.AgregarParametro(cmd, "@Hasta", hasta);
+                    ConexionHelper.AgregarParametro(cmd, "@FechaDesde", desde);
+                    ConexionHelper.AgregarParametro(cmd, "@FechaHasta", hasta);
                     conn.Open();
                     using (SqlDataReader reader = cmd.ExecuteReader())
                     {
@@ -60,7 +60,7 @@ namespace Ejemplo.Componentes.DAT
                                 PagoId = ConexionHelper.LeerValor<long>(reader, "PagoId"),
                                 OperacionId = ConexionHelper.LeerValor<int>(reader, "OperacionId"),
                                 FechaPago = ConexionHelper.LeerValor<DateTime>(reader, "FechaPago"),
-                                Monto = ConexionHelper.LeerValor<decimal>(reader, "Monto"),
+                                MontoPago = ConexionHelper.LeerValor<decimal>(reader, "MontoPago"),
                                 TipoPago = ConexionHelper.LeerValor<string>(reader, "TipoPago"),
                                 Referencia = ConexionHelper.LeerValor<string>(reader, "Referencia")
                             });

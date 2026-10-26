@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.ServiceModel;
 using Ejemplo.WCF.Contratos;
-using Ejemplo.Comun.DTOs.Pagos;
+using Ejemplo.Comun.DTOs.Creditos;
 using Ejemplo.Comun.DTOs.Comunes;
 using Ejemplo.Componentes.BLL;
 using Ejemplo.Comun.Utilidades;
@@ -12,35 +12,33 @@ namespace Ejemplo.WCF.Servicios
     [ServiceBehavior(InstanceContextMode = InstanceContextMode.PerCall, ConcurrencyMode = ConcurrencyMode.Multiple)]
     public class PagosServicio : IPagosServicio
     {
-        public RespuestaOperacion<PagoRealizadoDTO> RegistrarPago(PagoDTO pago, string usuario)
+        public RespuestaOperacion<long> RegistrarPago(int operacionId, decimal montoPago, string tipoPago, string canalPago, int? cuentaOrigenId, string referencia, string usuario)
         {
             try
             {
-                LogUtil.Info($"RegistrarPago: operacion {pago?.OperacionId} por {usuario}");
+                LogHelper.Informacion($"RegistrarPago: operacion {operacionId} por {usuario}");
                 var bll = new PagosBLL();
-                var result = bll.RegistrarPago(pago, usuario);
-                return RespuestaOperacion<PagoRealizadoDTO>.CrearExito(result);
+                return bll.RegistrarPago(operacionId, montoPago, tipoPago, canalPago, cuentaOrigenId, referencia, usuario);
             }
             catch (Exception ex)
             {
-                LogUtil.Error(ex);
-                return RespuestaOperacion<PagoRealizadoDTO>.CrearError(ex.Message);
+                LogHelper.Error("RegistrarPago WCF", ex);
+                return RespuestaOperacion<long>.CrearError(ex.Message);
             }
         }
 
-        public RespuestaOperacion<List<PagoRealizadoDTO>> ConsultarPagosOperacion(int operacionId)
+        public RespuestaOperacion<List<PagoDTO>> ConsultarPagosOperacion(int operacionId, DateTime? fechaDesde, DateTime? fechaHasta)
         {
             try
             {
-                LogUtil.Info($"ConsultarPagosOperacion: {operacionId}");
+                LogHelper.Informacion($"ConsultarPagosOperacion: {operacionId}");
                 var bll = new PagosBLL();
-                var result = bll.ConsultarPagosOperacion(operacionId);
-                return RespuestaOperacion<List<PagoRealizadoDTO>>.CrearExito(result);
+                return bll.ConsultarPagosOperacion(operacionId, fechaDesde, fechaHasta);
             }
             catch (Exception ex)
             {
-                LogUtil.Error(ex);
-                return RespuestaOperacion<List<PagoRealizadoDTO>>.CrearError(ex.Message);
+                LogHelper.Error("ConsultarPagosOperacion WCF", ex);
+                return RespuestaOperacion<List<PagoDTO>>.CrearError(ex.Message);
             }
         }
     }
