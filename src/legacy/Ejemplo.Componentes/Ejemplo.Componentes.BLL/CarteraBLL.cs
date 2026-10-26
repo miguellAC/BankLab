@@ -16,12 +16,12 @@ namespace Ejemplo.Componentes.BLL
             try
             {
                 var reporte = _carteraDAS.ObtenerReporteCartera(fechaCorte, sucursalId, estado, catRiesgo);
-                return RespuestaOperacion<List<ReporteCarteraDTO>>.Exito(reporte);
+                return RespuestaOperacion<List<ReporteCarteraDTO>>.CrearExitosa(reporte);
             }
             catch (Exception ex)
             {
                 LogHelper.Error("ObtenerReporteCartera BLL", ex);
-                return RespuestaOperacion<List<ReporteCarteraDTO>>.Error("Error al obtener reporte de cartera.");
+                return RespuestaOperacion<List<ReporteCarteraDTO>>.CrearError("Error al obtener reporte de cartera.");
             }
         }
 
@@ -32,13 +32,14 @@ namespace Ejemplo.Componentes.BLL
                 if (diasMinimo < 0) diasMinimo = 0;
                 
                 var reporte = _carteraDAS.ObtenerReporteCarteraVencida(diasMinimo);
-                return RespuestaOperacion<List<ReporteCarteraDTO>>.Exito(reporte);
+                return RespuestaOperacion<List<ReporteCarteraDTO>>.CrearExitosa(reporte);
             }
             catch (Exception ex)
             {
                 LogHelper.Error("ObtenerReporteCarteraVencida BLL", ex);
-                return RespuestaOperacion<List<ReporteCarteraDTO>>.Error("Error al obtener reporte de cartera vencida.");
+                return RespuestaOperacion<List<ReporteCarteraDTO>>.CrearError("Error al obtener reporte de cartera vencida.");
             }
         }
     }
 }
+

@@ -1,3 +1,5 @@
+using System;
+using System.Collections.Generic;
 using System.ServiceModel;
 using Ejemplo.Comun.DTOs.Cartera;
 using Ejemplo.Comun.DTOs.Comunes;
@@ -8,6 +10,10 @@ namespace Ejemplo.WCF.Contratos
     public interface ICarteraServicio
     {
         [OperationContract]
-        RespuestaOperacion<ReporteCarteraDTO> ObtenerReporteCartera(int sucursalId);
+        RespuestaOperacion<List<ReporteCarteraDTO>> ObtenerReporteCartera(
+            DateTime? fechaCorte, int? sucursalId, string estado, string categoriaRiesgo);
+
+        [OperationContract]
+        RespuestaOperacion<List<ReporteCarteraDTO>> ObtenerReporteCarteraVencida(int diasMinimo);
     }
 }

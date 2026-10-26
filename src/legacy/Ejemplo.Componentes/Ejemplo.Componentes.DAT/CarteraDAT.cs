@@ -16,7 +16,7 @@ namespace Ejemplo.Componentes.DAT
             try
             {
                 conn = ConexionHelper.ObtenerConexion();
-                using (SqlCommand cmd = ConexionHelper.CrearComandoSP(conn, "sp_ObtenerReporteCartera"))
+                using (SqlCommand cmd = ConexionHelper.CrearComandoSP(conn, "sp_ReporteCartera"))
                 {
                     ConexionHelper.AgregarParametro(cmd, "@FechaCorte", fechaCorte);
                     ConexionHelper.AgregarParametro(cmd, "@SucursalId", sucursalId);
@@ -29,12 +29,11 @@ namespace Ejemplo.Componentes.DAT
                         {
                             result.Add(new ReporteCarteraDTO
                             {
-                                OperacionId = ConexionHelper.LeerValor<int>(reader, "OperacionId"),
-                                NumeroOperacion = ConexionHelper.LeerValor<string>(reader, "NumeroOperacion"),
-                                ClienteId = ConexionHelper.LeerValor<int>(reader, "ClienteId"),
-                                SaldoCapital = ConexionHelper.LeerValor<decimal>(reader, "SaldoCapital"),
-                                DiasMora = ConexionHelper.LeerValor<int>(reader, "DiasMora"),
-                                CategoriaRiesgo = ConexionHelper.LeerValor<string>(reader, "CategoriaRiesgo")
+                                NombreProducto = ConexionHelper.LeerValor<string>(reader, "TipoProducto"),
+                                CategoriaRiesgo = ConexionHelper.LeerValor<string>(reader, "CategoriaRiesgo"),
+                                SaldoTotal = ConexionHelper.LeerValor<decimal>(reader, "SaldoTotal"),
+                                SaldoCapitalVigente = ConexionHelper.LeerValor<decimal>(reader, "CapitalVigente"),
+                                SaldoCapitalVencido = ConexionHelper.LeerValor<decimal>(reader, "CapitalVencido")
                             });
                         }
                     }
@@ -60,9 +59,9 @@ namespace Ejemplo.Componentes.DAT
             try
             {
                 conn = ConexionHelper.ObtenerConexion();
-                using (SqlCommand cmd = ConexionHelper.CrearComandoSP(conn, "sp_ObtenerReporteCarteraVencida"))
+                using (SqlCommand cmd = ConexionHelper.CrearComandoSP(conn, "sp_ReporteCarteraVencida"))
                 {
-                    ConexionHelper.AgregarParametro(cmd, "@DiasMinimoMora", diasMinimo);
+                    ConexionHelper.AgregarParametro(cmd, "@DiasVencidoMinimo", diasMinimo);
                     conn.Open();
                     using (SqlDataReader reader = cmd.ExecuteReader())
                     {
@@ -70,12 +69,13 @@ namespace Ejemplo.Componentes.DAT
                         {
                             result.Add(new ReporteCarteraDTO
                             {
-                                OperacionId = ConexionHelper.LeerValor<int>(reader, "OperacionId"),
                                 NumeroOperacion = ConexionHelper.LeerValor<string>(reader, "NumeroOperacion"),
-                                ClienteId = ConexionHelper.LeerValor<int>(reader, "ClienteId"),
-                                SaldoCapital = ConexionHelper.LeerValor<decimal>(reader, "SaldoCapital"),
-                                DiasMora = ConexionHelper.LeerValor<int>(reader, "DiasMora"),
-                                CategoriaRiesgo = ConexionHelper.LeerValor<string>(reader, "CategoriaRiesgo")
+                                NombreCliente = ConexionHelper.LeerValor<string>(reader, "Cliente"),
+                                NumeroIdentificacion = ConexionHelper.LeerValor<string>(reader, "NumeroIdentificacion"),
+                                NombreSucursal = ConexionHelper.LeerValor<string>(reader, "Sucursal"),
+                                DiasEnMora = ConexionHelper.LeerValor<int>(reader, "DiasEnMora"),
+                                SaldoCapitalVencido = ConexionHelper.LeerValor<decimal>(reader, "SaldoCapitalVencido"),
+                                SaldoTotal = ConexionHelper.LeerValor<decimal>(reader, "TotalVencido")
                             });
                         }
                     }

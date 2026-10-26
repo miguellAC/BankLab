@@ -26,5 +26,10 @@ namespace Ejemplo.WCF.Agentes
         {
             return EjecutarOperacion(c => c.ObtenerReporteCartera(fechaCorte, sucursalId, estado, categoriaRiesgo), nameof(ObtenerReporteCartera));
         }
+
+        public RespuestaOperacion<List<ReporteCarteraDTO>> ObtenerReporteCarteraVencida(int diasMinimo)
+        {
+            return EjecutarOperacion(c => c.ObtenerReporteCarteraVencida(diasMinimo), nameof(ObtenerReporteCarteraVencida));
+        }
     }
 }
